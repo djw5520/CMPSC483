@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>AnthroTools</title>
+   <meta name="viewport" content="width=device-width, initial-scale=1">   
+
+      <link rel="apple-touch-icon" href="./apple-touch-icon.png"/>
+	<meta charset="utf-8">
+
+
+<link rel="stylesheet" href="./jquery/jquery.mobile-1.3.1.min.css" />
+<script src="./jquery/jquery-1.9.1.min.js"></script>
+<script src="./jquery/jquery.mobile-1.3.1.min.js"></script>
+<!--
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.css" />
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
+-->
+<link rel="stylesheet" href="./theme/AnthroTools4.css" />
+<style type="text/css">
+a.bodySegmentLink:link, a.bodySegmentLink:visited, a.bodySegmentLink:hover, a.bodySegmentLink:active { text-decoration: underline; font-weight:bold; color: #000 };
+</style>
+ 
+  
+<script type="text/javascript" src="build_data.js">
+/* This script loads the data. Run build_data.php if the SQLite database is updated! */
+</script>
+
+<script type="text/javascript" src="./stats.js"></script>
+
+<script type="text/javascript">
+
+/* ********************************
+BEGIN CODE FOR MVVIEW
+******************************** */
+
+		
+Array.prototype.sum = function() {
+		// An array Method that will SUM the elements of an array		
+
+		  
+		  return (! this.length) ? 0 : this.slice(1).sum() +
+			  ((typeof this[0] == 'number') ? this[0] : 0);
+		
+			};
+
+function buildPop(  measures, width ) {
+				// Take the raw population data and parse into a population
+
+			
+			this.anthro = measures;		// add the anthropometry
+			var temp = new Array();
+			for (loopI=0;loopI<width;loopI++) { 
+				temp[loopI]=ACCOM;		// accommodated by default
+			} 
+			
+			this.inRange = temp;		// initializes to "in range"
+		}
+
+function inOrOut( population, measure, cutoffMin, cutoffMax ) {
+		
+				// determine if a particular measure is within the cutoff range or not
+
+
+			for (loopI=0;loopI<popSize;loopI++) { 
+				if ( ( population[measure].anthro[loopI] <= cutoffMax ) &
+					 ( population[measure].anthro[loopI] >= cutoffMin ) ) {
+					population[measure].inRange[loopI] = ACCOM;		// within range
+				} else {
+					population[measure].inRange[loopI] = DISACCOM;		// out of range
+				}
+			}
+		}
+		
+function buildPlotData( population, xMeasure, yMeasure ) {
+		
+		// Parse the population data to prepare for plotting
+		// xIndex and yIndex are the indices for values for x and y axes
+		
+			var tempIn = new Array();
+			var tempOut = new Array();
+			tempInIndex = 0;
+			tempOutIndex = 0;
+			
+
+
+			for (loopI=0;loopI<popSize;loopI++) { 
+			
+				accom_sum=0; //0 is accommodated
+				for (i=0;i<totalDims;i++) {	
+					accom_sum = accom_sum+population[measures[i]].inRange[loopI];
+				}
+				if (accom_sum==0) { //if sum of all measures is 0, they're accommodated on all
+					tempIn[tempInIndex++] = [ population[xMeasure].anthro[loopI], population[yMeasure].anthro[loopI] ];
+				} else {
+					tempOut[tempOutIndex++] = [ population[xMeasure].anthro[loopI], population[yMeasure].anthro[loopI] ];
+				}
+				
+			}
+			
+			populationIn = tempIn;		// Accommodated individuals (within range)
+			populationOut = tempOut;	// Disaccommodated individuals
+			
+			var percentage = (populationIn.length)*100/popSize;
+			
+			$('#totals').html(percentage.toFixed(1) +"%");
+			
+			accom_tracker = new Array(0, 0, 0, 0);
+			
+			for (loop1=0; loop1<popSize;loop1++) {
+				for (loop2=0;loop2<totalDims;loop2++) {
+					if (population[measures[loop2]].inRange[loop1] == ACCOM){
+						accom_tracker[loop2] = accom_tracker[loop2] + 1;
+					}
+				}
+			}
+			
+
+			
+			$('#accom_x').html((accom_tracker[0]*100/popSize).toFixed(1) + "%");
+			$('#accom_y').html((accom_tracker[1]*100/popSize).toFixed(1) + "%");
+			
+			if (totalDims>2){
+				$('#accom_z').html((accom_tracker[2]*100/popSize).toFixed(1) + "%"); }
+			if (totalDims>3){
+				$('#accom_q').html((accom_tracker[3]*100/popSize).toFixed(1) + "%"); }
+
+		
+			
+				
+		}
+
+function dimSwitch(dimName){
+
+	
+		if (selectedDims[dimName]==false || selectedDims[dimName]=="undefined" || selectedDims[dimName]==null){
+				if (totalDims >= 4){
+					alert('You may select a maximum of 4 dimensions. Please remove a dimension to select another.');
+					$("#"+dimName).prop("checked",false).checkboxradio("refresh");				
+					
+				}else{
+					selectedDims[dimName] = true;
+					totalDims = totalDims + 1;
+				}
+		} else if(totalDims<=2){
+					alert('You may select a minimum of 2 dimensions. Please add a dimension to remove one.');
+					$("#"+dimName).prop("checked",true).checkboxradio("refresh");	
+		}else{
+			selectedDims[dimName] = false;
+			totalDims = totalDims - 1;
+		}
+		
+		count = 0;
+		measures = new Array('','','','');
+		measure1="";
+		measure2="";
+		measure3="";
+		measure4="";
+		
+		for (var key in selectedDims) {
+			if (selectedDims[key]==true) {
+				measures[count] = key;
+				count++;
+			}
+		}
+		
+		
+		// CONVERT TO EXPLICIT FORMAT TOO (EASIER IN SPOTS)
+		
+		if (measures.length>0){
+			measure1 = measures[0]; measure2="";measure3="";measure4="";
+		}
+		if (measures.length>1){
+			measure2 = measures[1];measure3="";measure4="";
+		}
+		if (measures.length>2){
+			measure3 = measures[2];measure4="";
+		}
+		if (measures.length>3)
+			measure4 = measures[3];
+		
+		xMeasure = measure1;
+		yMeasure = measure2;
+}
+
+function plot() {
+  
+	
+	chart.series[0].setData(populationOut);
+	chart.series[1].setData(populationIn);
+	
+	chart.xAxis[0].axisTitle.attr({
+			text: fullName[xMeasure] +' ' +units[xMeasure],
+								  });
+	chart.yAxis[0].axisTitle.attr({
+			text: fullName[yMeasure] +'<br> ' +units[yMeasure],
+								  });
+	
+	/* to put breaks in place of spaces: fullName[yMeasure].replace(" ","<br>") */
+
+	
+}
+
+function plotAxis(){
+	
+	buildPlotData( population, xMeasure, yMeasure );
+	plot();
+}
+
+function initSliders(measure1,measure2,measure3,measure4,totalDims){
+	
+	all_sliders_html = '';
+	
+	
+	// x slider
+	var tempmin = Math.round(mean(rawData[measure1])-3*stdev(rawData[measure1],1));
+	var tempmax = Math.round(mean(rawData[measure1])+3*stdev(rawData[measure1],1));
+	all_sliders_html += '<div data-role="rangeslider" id="xRange">';
+    all_sliders_html += '<label for="xRange-min" style="margin-bottom:-10px"><span id="xLabel">'+fullName[measure1]+'</span> &nbsp;<span id="accom_x" style="color:red; font-size:20px;">100%</span></label>';
+    all_sliders_html += '<input type="range" name="xRange-min" id="xRange-min" value="'+tempmin+'" min="'+tempmin+'" max="'+tempmax+'"/>';
+    all_sliders_html += '<input type="range" name="xRange-max" id="xRange-max" value="'+tempmax+'" min="'+tempmin+'" max="'+tempmax+'"   />';
+    all_sliders_html += '</div>';
+    all_sliders_html += '<div style="width:150px; margin:auto; margin-top:-10px; margin-bottom:20px;"><label ><input type="checkbox" name="symmetry1" id="symmetry1" data-mini="true">Symmetry</label></div>';
+    
+    // y slider
+	var tempmin = Math.round(mean(rawData[measure2])-3*stdev(rawData[measure2],1));
+	var tempmax = Math.round(mean(rawData[measure2])+3*stdev(rawData[measure2],1));
+	all_sliders_html += '<div data-role="rangeslider" id="yRange">';
+    all_sliders_html += '<label for="yRange-min" style="margin-bottom:-10px"><span id="yLabel">'+fullName[measure2]+'</span> &nbsp;<span id="accom_y" style="color:red; font-size:20px;">100%</span></label>';
+    all_sliders_html += '<input type="range" name="yRange-min" id="yRange-min" value="'+tempmin+'" min="'+tempmin+'" max="'+tempmax+'" />';
+    all_sliders_html += '<input type="range" name="yRange-max" id="yRange-max" value="'+tempmax+'" min="'+tempmin+'" max="'+tempmax+'" />';
+    all_sliders_html += '</div>';    
+    all_sliders_html += '<div style="width:150px; margin:auto; margin-top:-10px; margin-bottom:20px;"><label ><input type="checkbox" name="symmetry2" id="symmetry2" data-mini="true">Symmetry</label></div>';
+             
+                 
+    // z slider
+    if ((measure3!=null)&&(measure3!='')){
+		var tempmin = Math.round(mean(rawData[measure3])-3*stdev(rawData[measure3],1));
+		var tempmax = Math.round(mean(rawData[measure3])+3*stdev(rawData[measure3],1));
+		all_sliders_html += '<div data-role="rangeslider" id="zRange">';
+		all_sliders_html += '<label for="zRange-min" style="margin-bottom:-10px"><span id="zLabel">'+fullName[measure3]+'</span> &nbsp;<span id="accom_z" style="color:red; font-size:20px;">100%</span></label>';
+		all_sliders_html += '<input type="range" name="zRange-min" id="zRange-min" value="'+tempmin+'" min="'+tempmin+'" max="'+tempmax+'" />';
+		all_sliders_html += '<input type="range" name="zRange-max" id="zRange-max" value="'+tempmax+'" min="'+tempmin+'" max="'+tempmax+'" />';
+		all_sliders_html += '</div>'; 
+		all_sliders_html += '<div style="width:150px; margin:auto; margin-top:-10px; margin-bottom:20px;"><label ><input type="checkbox" name="symmetry3" id="symmetry3" data-mini="true">Symmetry</label></div>';
+       
+	}
+	
+	// q slider
+    if ((measure4!=null)&&(measure4!='')){
+		var tempmin = Math.round(mean(rawData[measure4])-3*stdev(rawData[measure4],1));
+		var tempmax = Math.round(mean(rawData[measure4])+3*stdev(rawData[measure4],1));
+		all_sliders_html += '<div data-role="rangeslider" id="qRange">';
+		all_sliders_html += '<label for="qRange-min" style="margin-bottom:-10px"><span id="qLabel">'+fullName[measure4]+'</span> &nbsp;<span id="accom_q" style="color:red; font-size:20px;">100%</span></label>';
+		all_sliders_html += '<input type="range" name="qRange-min" id="qRange-min" value="'+tempmin+'" min="'+tempmin+'" max="'+tempmax+'"  />';
+		all_sliders_html += '<input type="range" name="qRange-max" id="qRange-max" value="'+tempmax+'" min="'+tempmin+'" max="'+tempmax+'"  />';
+		all_sliders_html += '</div>';  
+    	all_sliders_html += '<div style="width:150px; margin:auto; margin-top:-10px; margin-bottom:20px;"><label ><input type="checkbox" name="symmetry4" id="symmetry4" data-mini="true">Symmetry</label></div>';
+      
+	}
+	
+	
+    $('#sliders').html(all_sliders_html).trigger('create');
+	
+}
+
+function switchPlot(axisDim){
+	
+	if (axisDim=="x"){
+		var dimension=document.getElementById('xAxisDim').selectedIndex;
+		xMeasure = document.getElementsByTagName("option")[dimension].value;
+		return xMeasure;
+	}else{
+		var dimension=document.getElementById('yAxisDim').selectedIndex;
+		yMeasure = document.getElementsByTagName("option")[dimension].value;
+		return yMeasure;
+	}
+
+}
+
+$(document).on('pageinit','#mvView',function(event){
+
+rawData = rawData_M; // men by default
+popSize = rawData['BMI'].length;
+selectedDims = new Array();
+measures = new Array('STATURE','BMI');
+measure1='STATURE';
+xMeasure = 'STATURE';
+measure2='BMI';
+yMeasure = 'BMI';
+measure3='';
+measure4='';
+totalDims = 2;
+selectedDims['STATURE'] = true;
+selectedDims['BMI'] = true;
+
+if(measure1 == "BMI" || measure1 == "Mass")
+{
+	step1 = .01;
+}
+if(measure2 == "BMI" || measure2 == "Mass")
+{
+	step2 = .01;
+}
+if(measure3 == "BMI" || measure3 == "Mass")
+{
+	step3 = .01;
+} 
+if(measure4 == "BMI" || measure4 == "Mass")
+{
+	step4 = .01;
+}
+ACCOM = 0;
+DISACCOM = 1;
+
+// initialize the arrays used for plotting
+populationIn = new Array();
+populationOut = new Array();
+
+// build the population of individuals		
+population = new Array();
+		
+for (i=0;i<totalDims;i++) {
+	population[measures[i]] = new buildPop( rawData[measures[i]], popSize );
+}
+		
+// build the plot data
+buildPlotData( population, xMeasure, yMeasure );
+
+
+// build chart
+chart = new Highcharts.Chart({
+		chart: {
+					renderTo: 'graphspot', 
+					defaultSeriesType: 'scatter',
+					zoomType: '',
+					backgroundColor: '',
+					margin: [ 25, 40, 40, 70 ]
+				},
+				title: {
+					text: '',
+					style: {font: 'normal 16px helvetica, arial, sans-serif'}
+				},
+
+				xAxis: {
+					
+					title: {
+						enabled: true,
+						text: fullName[xMeasure] +' ' +units[xMeasure],
+						rotation: 0,
+						margin: 10
+					},
+					startOnTick: true,
+					endOnTick: true,
+					showLastLabel: true 
+				},
+				
+				yAxis: {
+					title: {
+						enabled: true,
+						text:  fullName[yMeasure] +'<br>' +units[yMeasure],
+						rotation: 270,
+						margin: 20
+					}
+				},	
+				legend: {
+					layout: 'vertical',
+					style: {
+						top: '5px',
+						bottom: 'auto'
+					},
+					backgroundColor: '#FFFFFF',
+					borderWidth: 1
+				},
+				tooltip: {
+					enabled: false
+				},
+				plotOptions: {
+					scatter: {
+						marker: {
+							radius: 2,
+							symbol: 'circle',
+							states: {
+								hover: {
+									enabled: false,
+									lineColor: 'rgb(100,100,100)'
+								}
+							}
+						},
+						states: {
+							hover: {
+								marker: {
+									enabled: false
+								}
+							}
+						}
+					}
+				},
+				series: [{
+					name: 'Disaccommodated',
+					color: 'rgba(255, 0, 0, .5)',
+	            	data: populationOut
+			
+				}, {
+					name: 'Accommodated',
+					color: 'rgba(34, 32, 95, .5)',
+					data: populationIn
+			
+				}]
+				
+			});		
+	
+plot();
+
+// SET SLIDER VALUES
+initSliders(measure1,measure2,null,null,2);	
+
+// LOAD DATA IN ANTHROPOMETRY PANE	
+// * note: see build_data.js for the data being processed here
+
+var numberOfEntries = abrevName.length;
+var whole_body_html = [];
+var head_html = [];
+var hands_arms_html = [];
+var torso_html = [];
+var feet_legs_html = [];
+
+
+for (i=1; i<numberOfEntries; i++){
+
+	if (category[abrevName[i]]=='1_whole_body') {
+		whole_body_html.push('<input type="checkbox" name="' + abrevName[i] + '" id="' + abrevName[i] + '" onChange="dimSwitch(\'' + abrevName[i] + '\');" />');
+		whole_body_html.push('<label for="' + abrevName[i] + '">' + fullName[abrevName[i]] + '</label>');
+	}
+	
+	if (category[abrevName[i]]=='2_head') {
+		head_html.push('<input type="checkbox" name="' + abrevName[i] + '" id="' + abrevName[i] + '"  onChange="dimSwitch(\'' + abrevName[i] + '\');" />');
+		head_html.push('<label for="' + abrevName[i] + '">' + fullName[abrevName[i]] + '</label>');
+	}
+	
+	if (category[abrevName[i]]=='3_hands_arms') {
+		hands_arms_html.push('<input type="checkbox" name="' + abrevName[i] + '" id="' + abrevName[i] + '"  onChange="dimSwitch(\'' + abrevName[i] + '\');" />');
+		hands_arms_html.push('<label for="' + abrevName[i] + '">' + fullName[abrevName[i]] + '</label>');
+	}
+	if (category[abrevName[i]]=='4_torso') {
+		torso_html.push('<input type="checkbox" name="' + abrevName[i] + '" id="' + abrevName[i] + '"  onChange="dimSwitch(\'' + abrevName[i] + '\');" />');
+		torso_html.push('<label for="' + abrevName[i] + '">' + fullName[abrevName[i]] + '</label>');
+	}
+	if (category[abrevName[i]]=='5_feet_legs') {
+		feet_legs_html.push('<input type="checkbox" name="' + abrevName[i] + '" id="' + abrevName[i] + '"  onChange="dimSwitch(\'' + abrevName[i] + '\');" />');
+		feet_legs_html.push('<label for="' + abrevName[i] + '">' + fullName[abrevName[i]] + '</label>');
+	}
+	
+} 
+
+
+
+$('#whole_body_fieldset').append(whole_body_html.join(''));
+$('#head_fieldset').append(head_html.join(''));
+$('#hands_arms_fieldset').append(hands_arms_html.join(''));
+$('#torso_fieldset').append(torso_html.join(''));
+$('#feet_legs_fieldset').append(feet_legs_html.join(''));
+
+$('#anthroPickerForm').trigger('create');
+
+
+});
+
+$(document).on('change','#xRange-min',function(){
+    
+	minVal = $('#xRange-min').val();
+	maxVal = $('#xRange-max').val();
+	meanVal = mean(rawData[measure1]);
+	minDev = mean(rawData[measure1])-minVal;
+	maxDev = maxVal-mean(rawData[measure1]);
+	
+	if (meanVal>300) {devCheck = 0.001; } else {devCheck = 0.01; }
+
+	if ($("#symmetry1").prop("checked") && (Math.abs(minDev-maxDev)/meanVal>devCheck)) {
+		$('#xRange-max').val(Math.round(meanVal+minDev)).slider('refresh');
+	}
+	
+	inOrOut(population,measure1,minVal,maxVal);
+	buildPlotData(population, xMeasure, yMeasure);
+});
+
+$(document).on('change','#xRange-max',function(){
+    
+	minVal = $('#xRange-min').val();
+	maxVal = $('#xRange-max').val();
+	meanVal = mean(rawData[measure1]);
+	minDev = mean(rawData[measure1])-minVal;
+	maxDev = maxVal-mean(rawData[measure1]);
+	
+	if (meanVal>300) {devCheck = 0.001; } else {devCheck = 0.01; }
+
+	if ($("#symmetry1").prop("checked") && (Math.abs(minDev-maxDev)/meanVal>devCheck)) {
+		$('#xRange-min').val(Math.round(meanVal-maxDev)).slider('refresh');
+	}
+	
+	inOrOut(population,measure1,minVal,maxVal);
+	buildPlotData(population, xMeasure, yMeasure);
+});
+
+$(document).on('change','#yRange-min',function(){
+    
+	minVal = $('#yRange-min').val();
+	maxVal = $('#yRange-max').val();
+	meanVal = mean(rawData[measure2]);
+	minDev = mean(rawData[measure2])-minVal;
+	maxDev = maxVal-mean(rawData[measure2]);
+	
+	if (meanVal>300) {devCheck = 0.001; } else {devCheck = 0.01; }
+
+	if ($("#symmetry2").prop("checked") && (Math.abs(minDev-maxDev)/meanVal>devCheck)) {
+		$('#yRange-max').val(Math.round(meanVal+minDev)).slider('refresh');
+	}
+	
+	inOrOut(population,measure2,minVal,maxVal);
+	buildPlotData(population, xMeasure, yMeasure);
+});
+
+$(document).on('change','#yRange-max',function(){
+    
+	minVal = $('#yRange-min').val();
+	maxVal = $('#yRange-max').val();
+	meanVal = mean(rawData[measure2]);
+	minDev = mean(rawData[measure2])-minVal;
+	maxDev = maxVal-mean(rawData[measure2]);
+	
+	if (meanVal>300) {devCheck = 0.001; } else {devCheck = 0.01; }
+
+	if ($("#symmetry2").prop("checked") && (Math.abs(minDev-maxDev)/meanVal>devCheck)) {
+		$('#yRange-min').val(Math.round(meanVal-maxDev)).slider('refresh');
+	}
+	
+	inOrOut(population,measure2,minVal,maxVal);
+	buildPlotData(population, xMeasure, yMeasure);
+});
+
+$(document).on('change','#zRange-min',function(){
+    
+	minVal = $('#zRange-min').val();
+	maxVal = $('#zRange-max').val();
+	meanVal = mean(rawData[measure3]);
+	minDev = mean(rawData[measure3])-minVal;
+	maxDev = maxVal-mean(rawData[measure3]);
+	
+	if (meanVal>300) {devCheck = 0.001; } else {devCheck = 0.01; }
+
+	if ($("#symmetry3").prop("checked") && (Math.abs(minDev-maxDev)/meanVal>devCheck)) {
+		$('#zRange-max').val(Math.round(meanVal+minDev)).slider('refresh');
+	}
+	
+	inOrOut(population,measure3,minVal,maxVal);
+	buildPlotData(population, xMeasure, yMeasure);
+});
+
+$(document).on('change','#zRange-max',function(){
+    
+	minVal = $('#zRange-min').val();
+	maxVal = $('#zRange-max').val();
+	meanVal = mean(rawData[measure3]);
+	minDev = mean(rawData[measure3])-minVal;
+	maxDev = maxVal-mean(rawData[measure3]);
+	
+	if (meanVal>300) {devCheck = 0.001; } else {devCheck = 0.01; }
+
+	if ($("#symmetry3").prop("checked") && (Math.abs(minDev-maxDev)/meanVal>devCheck)) {
+		$('#zRange-min').val(Math.round(meanVal-maxDev)).slider('refresh');
+	}
+	
+	inOrOut(population,measure3,minVal,maxVal);
+	buildPlotData(population, xMeasure, yMeasure);
+});
+
+$(document).on('change','#qRange-min',function(){
+    
+	minVal = $('#qRange-min').val();
+	maxVal = $('#qRange-max').val();
+	meanVal = mean(rawData[measure4]);
+	minDev = mean(rawData[measure4])-minVal;
+	maxDev = maxVal-mean(rawData[measure4]);
+	
+	if (meanVal>300) {devCheck = 0.001; } else {devCheck = 0.01; }
+
+	if ($("#symmetry4").prop("checked") && (Math.abs(minDev-maxDev)/meanVal>devCheck)) {
+		$('#qRange-max').val(Math.round(meanVal+minDev)).slider('refresh');
+	}
+	
+	inOrOut(population,measure4,minVal,maxVal);
+	buildPlotData(population, xMeasure, yMeasure);
+});
+
+$(document).on('change','#qRange-max',function(){
+    
+	minVal = $('#qRange-min').val();
+	maxVal = $('#qRange-max').val();
+	meanVal = mean(rawData[measure4]);
+	minDev = mean(rawData[measure4])-minVal;
+	maxDev = maxVal-mean(rawData[measure4]);
+	
+	if (meanVal>300) {devCheck = 0.001; } else {devCheck = 0.01; }
+
+	if ($("#symmetry4").prop("checked") && (Math.abs(minDev-maxDev)/meanVal>devCheck)) {
+		$('#qRange-min').val(Math.round(meanVal-maxDev)).slider('refresh');
+	}
+	
+	inOrOut(population,measure4,minVal,maxVal);
+	buildPlotData(population, xMeasure, yMeasure);
+});
+
+$(document).on('change','#anthroPickerForm',function(event) {
+
+	refreshMvData();
+	
+
+});
+
+$(document).on('change','input[name="mvGender"]',function(event) {
+ 	if ($('#mvGender_F').prop("checked")){
+ 		rawData = rawData_F;
+ 		refreshMvData();
+ 	} else {
+ 		rawData = rawData_M;
+ 		refreshMvData();
+ 	} 	
+		
+});
+ 
+$( document ).on( "popupafterclose", "#mvGraphSettings",function( e ) {
+	buildPlotData(population, xMeasure, yMeasure);
+	plot();
+	});
+
+function refreshMvData(){
+	for (i=0;i<totalDims;i++) {
+			population[measures[i]] = new buildPop( rawData[measures[i]], popSize );
+	}	
+		
+	initSliders(measure1,measure2,measure3,measure4,totalDims);
+	
+	buildPlotData(population, xMeasure, yMeasure);
+	
+	// add measures to graph options
+	var xDim=document.getElementById('xAxisDim');
+	var yDim=document.getElementById('yAxisDim');
+	for (i=0;i<totalDims;i++){
+		var newOption=document.createElement('option');
+		xDim.options[i].value = measures[i];
+		xDim.options[i].text = fullName[measures[i]];
+		yDim.options[i].value = measures[i];
+		yDim.options[i].text = fullName[measures[i]];
+	 }
+	 
+	 
+	 
+}
+
+/* ********************************
+END CODE FOR MVVIEW
+******************************** */
+
+/* ********************************
+BEGIN CODE FOR KVIEW
+******************************** */
+
+
+function updateK() {
+	
+
+	stat_val = $('#stature_value').val();
+	shoulder_ht_val = 0.818*stat_val;
+	elbow_ht_val = 0.630*stat_val;
+	wrist_ht_val = 0.485*stat_val;
+	fingertip_ht_val = 0.377*stat_val;
+	ankle_ht_val = 0.039*stat_val;
+	popliteal_ht_val = 0.285*stat_val;
+	hip_ht_val = 0.530*stat_val;
+	hip_breadth_val = 0.191*stat_val;
+	shoulder_breadth_val = 0.259*stat_val;
+	upper_arm_val = 0.186*stat_val;
+	lower_arm_val = 0.146*stat_val;
+	hand_val = 0.108*stat_val;
+	
+	if ($("#unit_switch").val()=="mm"){ precisionVal = 0; 
+		}else{ precisionVal = 1; }
+	
+	$('#stature').html('<a href="#popupStature" data-rel="popup" class="bodySegmentLink">'+stat_val+'</a>');
+	$('#shoulder_ht').html('<a href="#popupShoulderHt" data-rel="popup" class="bodySegmentLink">'+shoulder_ht_val.toFixed(precisionVal)+'</a>');
+	$('#elbow_ht').html('<a href="#popupElbow" data-rel="popup" class="bodySegmentLink">'+elbow_ht_val.toFixed(precisionVal)+'</a>');
+	$('#wrist_ht').html('<a href="#popupWrist" data-rel="popup" class="bodySegmentLink">'+wrist_ht_val.toFixed(precisionVal)+'</a>');
+	$('#fingertip_ht').html('<a href="#popupFingertip" data-rel="popup" class="bodySegmentLink">'+fingertip_ht_val.toFixed(precisionVal)+'</a>');
+	$('#ankle_ht').html('<a href="#popupAnkle" data-rel="popup" class="bodySegmentLink">'+ankle_ht_val.toFixed(precisionVal)+'</a>');
+	$('#popliteal_ht').html('<a href="#popupPopliteal" data-rel="popup" class="bodySegmentLink">'+popliteal_ht_val.toFixed(precisionVal)+'</a>');
+	$('#hip_ht').html('<a href="#popupHipHt" data-rel="popup" class="bodySegmentLink">'+hip_ht_val.toFixed(precisionVal)+'</a>');
+	$('#hip_breadth').html('<a href="#popupHipBreadth" data-rel="popup" class="bodySegmentLink">'+hip_breadth_val.toFixed(precisionVal)+'</a>');
+	$('#shoulder_breadth').html('<a href="#popupShoulderBreadth" data-rel="popup" class="bodySegmentLink">'+shoulder_breadth_val.toFixed(precisionVal)+'</a>');
+	$('#upper_arm').html('<a href="#popupUpperArm" data-rel="popup" class="bodySegmentLink">'+upper_arm_val.toFixed(precisionVal)+'</a>');
+	$('#lower_arm').html('<a href="#popupLowerArm" data-rel="popup" class="bodySegmentLink">'+lower_arm_val.toFixed(precisionVal)+'</a>');
+	$('#hand').html('<a href="#popupHand" data-rel="popup" class="bodySegmentLink">'+hand_val.toFixed(precisionVal)+'</a>');
+
+}
+
+$(document).on("change", "#unit_switch", function(event) {
+										  
+		if ($("#unit_switch").val()=="mm"){
+							
+				$("#stature_value").val(($("#stature_value").val()*25.4).toFixed(0));
+				
+				updateK();
+
+				
+		}else{
+								
+				$("#stature_value").val(($("#stature_value").val()/25.4).toFixed(1));
+				
+				updateK();
+
+
+		}
+});
+								  
+
+
+$(document).on('change','#stature_value',function(event) {
+
+
+updateK();
+
+
+});
+
+ ansur_m = new Array(1649,1671,1688,1710,1756,1801,1828,1843,1868);
+ ansur_m_in = new Array();
+ 		for (i=0;i<ansur_m.length;i++){
+		ansur_m_in[i] = ansur_m[i]/25.4;
+		}
+ ansur_f = new Array(1529,1551,1565,1585,1628,1672,1695,1712,1737);
+ ansur_f_in = new Array();
+  		for (i=0;i<ansur_f.length;i++){
+		ansur_f_in[i] = ansur_f[i]/25.4;
+		}
+ nhanes_m = new Array(1636,1666,1684,1713,1763,1815,1844,1860,1887);
+ nhanes_m_in = new Array();
+  		for (i=0;i<nhanes_m.length;i++){
+		nhanes_m_in[i] = nhanes_m[i]/25.4;
+		}
+ nhanes_f = new Array(1507,1533,1549,1577,1622,1667,1691,1708,1731);
+ nhanes_f_in = new Array();
+  		for (i=0;i<nhanes_f.length;i++){
+		nhanes_f_in[i] = nhanes_f[i]/25.4;
+		}
+
+
+
+$(document).on("change",'#select-database,#select-gender,#select-percentile,#predefined_switch',function(event){
+
+if($('#unit_switch').val()=='mm') {
+	if($('#select-database').val()=='ansur'){
+		if($('#select-gender').val()=='male'){
+				predefined_database = ansur_m;
+			}else{
+				predefined_database = ansur_f;
+			}
+	}else{
+		if($('#select-gender').val()=='male'){
+				predefined_database = nhanes_m;
+			}else{
+				predefined_database = nhanes_f;
+			}
+	}
+} else {
+	if($('#select-database').val()=='ansur'){
+		if($('#select-gender').val()=='male'){
+				predefined_database = ansur_m_in;
+			}else{
+				predefined_database = ansur_f_in;
+			}
+	}else{
+		if($('#select-gender').val()=='male'){
+				predefined_database = nhanes_m_in;
+			}else{
+				predefined_database = nhanes_f_in;
+			}
+	}
+}
+	
+	if ($("#unit_switch").val()=="mm"){ precisionVal = 0; 
+		}else{ precisionVal = 1; }
+	
+	percentile_index = $('#select-percentile').val();
+	$('#stature_value').val((predefined_database[percentile_index]).toFixed(precisionVal));
+	
+	updateK();
+	
+});
+
+$(document).on("change",'#predefined_switch',function(event){
+											  
+	if ($('#predefined_container').css('display')=='none'){
+		$('#predefined_container').css('display','block');
+		} else {
+		$('#predefined_container').css('display','none');
+	}
+
+
+ });
+
+
+/* ********************************
+END CODE FOR KVIEW
+******************************** */
+
+/* ********************************
+BEGIN CODE FOR NVIEW
+******************************** */
+
+$(document).on("change",'input[name="nhanes_genderSplit"],#nhanes_dimension,#nhanes_slider',function(event){
+
+var nhanes_data = new Array();
+
+
+
+if($('#nhanes_genderSplit').prop("checked") ){
+	split_val=100;
+	nhanes_data = data_100;
+}else if($('#nhanes_genderSplit_75m').prop("checked") ) {
+	split_val=75;
+	nhanes_data = data_75;
+}else if($('#nhanes_genderSplit_25m').prop("checked") ) {
+	split_val=25;
+	nhanes_data = data_25;
+}else if($('#nhanes_genderSplit_0m').prop("checked") ) {
+	split_val=0;
+	nhanes_data = data_0;
+}else {
+	split_val = 50;
+	nhanes_data = data_50;
+	$('#nhanes_genderSplit_50m').prop("checked",true).checkboxradio("refresh");
+	$('#nhanes_genderSplit').prop("checked",false).checkboxradio("refresh");
+	$('#nhanes_genderSplit_75m').prop("checked",false).checkboxradio("refresh");
+	$('#nhanes_genderSplit_25m').prop("checked",false).checkboxradio("refresh");
+	$('#nhanes_genderSplit_0m').prop("checked",false).checkboxradio("refresh");
+
+}
+
+if($('#nhanes_dimension').val()=='stature') { 
+	units = 'mm';
+} else if($('#nhanes_dimension').val()=='mass') {
+	units = 'kg';
+} else {
+	units = '';
+}
+
+data_vector = nhanes_data[$('#nhanes_dimension').val()];
+
+output_value = data_vector[$('#nhanes_slider').val()];
+
+if (($('#nhanes_slider').val()%10 ==1)&&($('#nhanes_slider').val() !=11 )){
+	suffix = 'st';
+} else if (($('#nhanes_slider').val()%10 ==2)&&($('#nhanes_slider').val() !=12 )){
+	suffix = 'nd';
+} else if (($('#nhanes_slider').val()%10 ==3)&&($('#nhanes_slider').val() !=13)){
+	suffix = 'rd';
+} else {
+	suffix = 'th';
+}
+
+$('#nhanes_output').html($('#nhanes_slider').val() + suffix + ' percentile: ' + output_value + ' ' + units);
+
+img_path = "./images/nhanes/" + $('#nhanes_dimension').val() + split_val + ".png";
+
+$("#nhanes_histogram").attr('src',img_path);
+	
+});
+
+/* ********************************
+END CODE FOR NVIEW
+******************************** */
+
+/* ********************************
+BEGIN CODE FOR MAINVIEW
+******************************** */
+
+$(document).on('click','#toolMenu li a',function(e){
+	
+	$('.toolMenuItem').removeClass('ui-btn-up-b').addClass('ui-btn-up-a');
+	$(this).closest('.toolMenuItem').addClass('ui-btn-up-b');
+
+});
+
+$(document).on('click','#mvViewMenu',function(e){
+	var htmlText = '<h3 style="margin:0">Multivariate Accommodation Calculator</h3>';
+	htmlText+='<a href="#mvView" data-transition="slide" data-role="button" data-icon="forward" data-mini="true" data-theme="b" style="width:200px; margin:20px">Go To Tool</a> ';
+	htmlText+='<p>This calculator permits the user to interact with many-dimensional anthropometric data in real-time. Sliders allow the specification of the acceptable limits of anthropometry on up to four dimensions, and the user may plot any of these four measures on the graph. Overall accommodation (on all measures) is displayed with the limits specified by the sliders in effect. The body dimension data comes from the 1988 ANSUR military survey.</p>';
+	$('#toolDescription').html(htmlText).trigger('create');
+
+});
+
+$(document).on('click','#kViewMenu',function(e){
+	var htmlText = '<h3 style="margin:0">Proportionality Calculator</h3>';
+	htmlText+='<a href="#kView" data-transition="slide" data-role="button" data-icon="forward" data-mini="true" data-theme="b" style="width:200px; margin:20px">Go To Tool</a> ';
+	htmlText+='<p>This calculator permits the user to scale multiple body dimensions with a specified value of stature (height). Tapping on the indicated value for each measure gives a description, along with the statistical correlation parameters of that value with stature for the 1988 ANSUR military survey data. </p>';
+	$('#toolDescription').html(htmlText).trigger('create');
+
+});
+
+$(document).on('click','#nViewMenu',function(e){
+	var htmlText = '<h3 style="margin:0">NHANES Database Explorer</h3>';
+	htmlText+='<a href="#nView" data-transition="slide" data-role="button" data-icon="forward" data-mini="true" data-theme="b" style="width:200px; margin:20px">Go To Tool</a> ';
+	htmlText+='<p>This calculator provides stature and BMI statistics from the National Health and Nutrition Examination Survey (NHANES). The calculator permits the user to enter a desired population composition (expressed as a percentage of males in the population) and percentile; the stature, mass, or BMI are returned for the given composition and percentile. A histogram of the measures is also provided. </p>';
+	$('#toolDescription').html(htmlText).trigger('create');
+});
+
+/* ********************************
+END CODE FOR MAINVIEW
+******************************** */
+
+</script>
+
+
+
+
+        
+        
+  </head>
+  <body onLoad="" style="margin:0; padding: 0; width: 100%;">
+      
+      
+<div data-role="page" id="mainView"> 
+
+	<div data-role="header" style="height:200px" data-position="fixed" data-tap-toggle="false"><p style="text-align:center" ><img src="./images/anthrotools.png" style="height:170px; "></p></div>
+
+          <div data-role="content">
+          
+            <div style="margin: 0 auto; width: 600px">
+            
+            <div class="ui-grid-a" style="padding:15px">
+				<div class="ui-block-a" style="width:20%">
+				<ul id="toolMenu" data-role="listview" data-theme="a" style="width:100%; ">
+				  <li class="toolMenuItem"><a href="#" id="mvViewMenu" style="font-size:20px">MV</a></li>
+				  <li class="toolMenuItem"><a href="#" id="kViewMenu" style="font-size:20px;">K</a></li>
+				  <li class="toolMenuItem"><a href="#" id="nViewMenu" style="font-size:20px;">N</a></li>
+				</ul>
+				</div>
+				<div class="ui-block-b" style="width:80%;" id="toolDescription">
+					<p style="margin:0">Welcome to AnthroTools, a suite of several practical tools for Design for Human Variability (DfHV). Select a tool from the menu at left to explore. </p>
+					<p>Contact <a href="mailto:parkinson@psu.edu">Matt Parkinson</a> with questions.</p>
+					<p>&copy;2013 Penn State University Open Design Lab</p>
+				</div>
+			</div>
+			
+			</div>
+            
+            
+            
+            
+            
+            
+         </div>
+         
+         <div data-role="footer" data-position="fixed" data-tap-toggle="false">
+         <div style="text-align:center">
+        			<a href="http://www.openlab.psu.edu/"> <img src="./images/openlablogo.png" style="width:150px; " alt="Open Design Lab"></a>
+        			                  <p style="font-size:20px; margin:0; margin-bottom:5px;"><i>version 1.1</i></p>
+
+         </div>
+		</div>
+
+      </div>
+      
+ 
+    
+
+    
+   
+   
+
+<div data-role="dialog" id="mvBackground" data-overlay-theme="d"> 
+     
+     
+         <div data-role="header" data-theme="b">
+             <h1>Background</h1>
+        </div>
+          <div data-role="content">
+
+<p>Designing for multiple body dimensions simultaneously presents one of the more difficult challenges when configuring products and environments for people. Traditional design tools have been principally univariate, displaying values for a single dimension in a tabular format. When multiple dimensions are combined, the percentage of the population accommodated by the limits on all the dimensions is not the same as the percentage of the population accommodated by the limits on a single dimension. </p>
+<p>This calculator permits the user to interact with many-dimensional data in real-time. Sliders allow the specification of the acceptable limits of anthropometry on up to four dimensions, and the user may plot any of these four measures on the graph. Overall accommodation (on all measures) is displayed with the limits specified by the sliders in effect. The body dimension data comes from the 1988 ANSUR military survey.</p>
+          </div>
+          <div data-role="footer"><h1></h1>
+              </div>
+</div>
+      
+
+<div data-role="page" id="mvView"> 
+
+<div data-role="popup" id="mvGraphSettings" style="width:300px; " class="ui-corner-all"> 
+     <div data-role="header" data-theme="a" class="ui-corner-top">
+				<h1>Graph Settings</h1>
+    <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+			</div>
+     <div data-role="content">
+     <p><i>Select dimensions to plot on the x and y axes.</i></p>
+<div data-role="fieldcontain" style="font-size:14px">
+   <label for="xAxisDim" class="select">X Axis</label>
+   <select name="xAxisDim" id="xAxisDim" onChange="xMeasure=switchPlot('x');" data-mini="true" data-native-menu="false">
+	<option value="STATURE" selected>Stature</option>
+	<option value="BMI">BMI</option>
+    <option></option>
+    <option></option>
+   </select>
+   <label for="yAxisDim" class="select" style="margin-top:10px">Y Axis</label>
+   <select name="yAxisDim" id="yAxisDim" onChange="yMeasure=switchPlot('y');" data-mini="true" >
+	<option value="STATURE">Stature</option>
+	<option value="BMI" selected>BMI</option>
+        <option></option>
+    	<option></option>
+   </select>
+</div>
+
+</div>
+
+</div>
+    
+<div data-role="panel" id="anthro_picker" data-theme="a" data-dismissible="false"> 
+        <a href="#" data-rel="close" data-role="button" data-theme="a" data-icon="delete" data-mini="true" class="ui-btn-left">Close</a>
+
+<p><i>You may select between 2 to 4 dimensions for analysis.</i></p>
+
+          
+<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+	<legend style="font-size:14px; font-weight:bold; float:left; margin-right:20px">Gender</legend>
+	<input type="radio" name="mvGender" id="mvGender_M" checked="checked">
+	<label for="mvGender_M">Male</label>
+	<input type="radio" name="mvGender" id="mvGender_F">
+	<label for="mvGender_F">Female</label>
+</fieldset>
+	
+
+  
+
+
+<form name="anthroPickerForm" id="anthroPickerForm" style="margin-top:20px">
+
+<fieldset data-role="controlgroup" data-mini="true">
+	<input type="checkbox" name="STATURE" id="STATURE" checked="checked"  onChange="dimSwitch('STATURE');" />
+	<label for="STATURE">Stature</label>
+	<input type="checkbox" name="BMI" id="BMI" checked="checked"  onChange="dimSwitch('BMI');" />
+	<label for="BMI">BMI</label>
+</fieldset>
+	
+    
+<div data-role="collapsible" data-mini="true"><h3>Whole body &amp; functional measures</h3>
+	<fieldset data-role="controlgroup" id="whole_body_fieldset" data-mini="true">
+
+	</fieldset>
+</div>
+    
+<div data-role="collapsible" data-mini="true"><h3>Head measures</h3>
+	<fieldset data-role="controlgroup" id="head_fieldset" data-mini="true">
+
+	</fieldset>
+</div>
+    
+<div data-role="collapsible" data-mini="true"><h3>Hand and arm measures</h3>
+	<fieldset data-role="controlgroup" id="hands_arms_fieldset" data-mini="true">
+
+	</fieldset>
+</div>
+
+<div data-role="collapsible" data-mini="true"><h3>Torso measures</h3>
+	 <fieldset data-role="controlgroup" id="torso_fieldset" data-mini="true">
+
+	</fieldset>
+</div>
+    
+        
+<div data-role="collapsible" data-mini="true"><h3>Foot and leg measures</h3>
+	<fieldset data-role="controlgroup" id="feet_legs_fieldset" data-mini="true"> 
+
+	</fieldset>
+</div>
+    
+
+</form>
+          
+
+              
+
+          
+
+    </div>
+      
+      
+      
+<script type="text/javascript" src="./Highcharts_2/js/highcharts.js"></script>   
+
+
+          <div data-role="header"> 
+                        <a href="#anthro_picker" data-rel="dialog" data-theme="b">Anthropometry</a>
+
+              <a href="#mvBackground" data-icon="info" data-rel="dialog" data-theme="b">Background</a>
+
+              
+              
+                            <h1></h1>
+
+
+
+          </div>
+          <div data-role="content" style=" text-align:center;">
+
+           
+      				<div id = "graphspot" style="width:100%; height: 300px; margin: 0 0 0 0px;"></div> 
+
+
+
+
+					<br style="clear:both">
+      
+
+
+              
+              	<p style="text-align:center; color:red; font-style:bold; font-size:18px;">
+
+					Total Accommodation:  <span id="totals" style="font-size:22px">100%</span>                   
+                     <a href="#" data-role="button" data-theme="a" data-inline="true" onClick="plot();" data-mini="true">Update Graph</a>
+                    <a href="#mvGraphSettings" data-rel="popup" data-role="button" data-theme="a" data-inline="true" data-mini="true" data-icon="gear">Graph Settings</a>
+
+
+             	 </p>
+                 
+              <div style="margin: 0 auto; width:90%" id="sliders">
+                 
+                 </div>
+   
+              
+              
+          </div>
+          <div data-role="footer" data-position="fixed" data-tap-toggle="false"> 
+              <div data-role="navbar">
+              <ul>
+                  <li><a href="#mainView" data-direction="reverse" data-transition="slide" data-theme="b" data-mini="true"><img src="./images/navbar_home.png" style="width:20px"></a></li>
+                  <li><a href="#mvView" class="ui-btn-active ui-state-persist" data-theme="b" data-mini="true"><img src="./images/navbar_mv.png" style="width:20px"></a></li>
+                  <li><a href="#kView" data-transition="slide" data-theme="b" data-mini="true"><img src="./images/navbar_k.png" style="width:20px"></a></li>
+                  <li><a href="#nView" data-transition="slide" data-theme="b" data-mini="true"><img src="./images/navbar_n.png" style="width:20px"></a></li>
+              </ul>
+              </div>
+          </div>
+
+         
+      </div>
+      
+
+      
+      <div data-role="dialog" id="kBackground" data-overlay-theme="d"> 
+     
+     
+         <div data-role="header" data-theme="b">
+             <h1>Background</h1>
+        </div>
+          <div data-role="content">
+
+<p>Proportionality constants describe the average ratio of a given body segment length to stature. The ratios used here are from Drillis and Contini (1966) and are among the most-used. Their use can be problematic, however, since segment ratios of any individual are not likely to be "average". In other words, the ratios for a given segment vary widely across individuals within a given population. Also, while a measure like "shoulder height" correlates well with stature (R<sup>2</sup> = 0.93), other measures, such as "shoulder breadth" (R<sup>2</sup> = 0.15) do not. As a result, this is a helpful tool for exploring relationships, but should not be used for real design. </p>
+
+<p>The R<sup>2</sup> and RMSE are reported for each segment by tapping on the indicated value. These values come from a regression on the ANSUR data.</p>
+
+<p>For a more detailed discussion of the strengths and weaknesses of proportionality constants, see Fromuth and Parkinson (2008), "Predicting 5th and 95th percentile anthropometric segment lengths from population stature" by visiting dfhv.org.</p>
+
+          </div>
+          <div data-role="footer"><h1></h1>
+              </div>
+    </div>
+    
+    
+       <div data-role="page" id="kView"> 
+      
+<div data-role="popup" id="kOptions" data-theme="a" style="width:300px; " class="ui-corner-all"> 
+
+    <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+     <div data-role="content">
+     <div data-role="fieldcontain">
+		<label for="predefined_switch" style="width:150px">Predefined Statures</label>
+		<select name="predefined_switch" id="predefined_switch" data-role="slider" data-mini="true">
+			<option value="off">Off</option>
+			<option value="on">On</option>
+			</select>
+    
+      		<p style="font-size:12px"><i>When enabled, 'Predefined Statures' provides additional options for specifying stature based on a specified percentile for a specified gender within either the NHANES or ANSUR databases. NHANES data are from the most recently released surveys (2003-2006) of U.S. adult civilians. ANSUR is a survey of U.S. Army personnel in 1988.</i></p>
+
+
+		</div>
+	</div>
+</div>
+          
+
+          <div data-role="header" > 
+              <a href="#kOptions" data-icon="gear" data-rel="popup" data-theme="b">Options</a>
+
+              <h1></h1>
+              
+              <a href="#kBackground" data-icon="info" data-rel="dialog" data-theme="b">Background</a>
+
+
+
+          </div>
+          <div data-role="content" style="text-align:center;">
+          
+
+
+          <div style="text-align:left; width:315px; margin: auto; ">
+          
+          Stature<br style="clear:both;">
+          
+          <div id="predefined_container" style="display: none; width: 100%; float:left;">
+          <fieldset data-role="controlgroup" data-type="horizontal">
+          <label for="select-database">Database</label>
+          <select name="select-database" id="select-database">
+          <option value="ansur">ANSUR</option>
+          <option value="nhanes">NHANES</option>
+          </select>
+          
+          <label for="select-gender">Gender</label>
+          <select name="select-gender" id="select-gender">
+          <option value="male">M</option>
+          <option value="female">F</option>
+          </select>
+          
+          <label for="select-percentile">Percentile</label>
+          <select name="select-percentile" id="select-percentile">
+          <option value="0">5th</option>
+          <option value="1">10th</option>
+          <option value="2">15th</option>
+          <option value="3">25th</option>
+          <option value="4">50th</option>
+          <option value="5">75th</option>
+          <option value="6">85th</option>
+          <option value="7">90th</option>
+          <option value="8">95th</option>
+          </select>
+          
+          </fieldset>
+          </div>
+          
+          <div style="width: 145px; float: left; margin-top:4px;">
+          <label for="stature_value" class="ui-hidden-accessible"></label>
+          <input type="text" id="stature_value" value="" style="display: inline;"/>
+          </div>
+          
+          <div style="width: 145px; float: left; margin-left:10px; ">
+              <div data-role="fieldcontain">
+                <label for="unit_switch" class="ui-hidden-accessible"></label>
+                <select name="unit_switch" id="unit_switch" data-role="slider" data-mini="true">
+                    <option value="mm">mm</option>
+                    <option value="in">in</option>
+                  </select>
+          	  </div>
+          </div>
+          
+          <br style="clear:both;">
+              
+          </div>
+          
+          <div style="text-align:left; margin: auto ; width:300px; min-height:400px; background-image: url('./images/drillis_blank.png'); background-repeat:no-repeat;">
+          <div style="position:relative; height:0; overflow: visible; left: -16px; top: 138px; " id="stature"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 5px; top: 183px; " id="shoulder_ht"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 28px; top: 230px; " id="elbow_ht"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 55px; top: 268px; " id="wrist_ht"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 76px; top: 307px; " id="fingertip_ht"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 160px; top: 375px; " id="ankle_ht"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 140px; top: 75px; " id="shoulder_breadth"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 140px; top: 195px; " id="hip_breadth"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 200px; top: 325px; " id="popliteal_ht"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 220px; top: 277px; " id="hip_ht"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 220px; top: 85px; " id="upper_arm"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 250px; top: 145px; " id="lower_arm"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 272px; top: 195px; " id="hand"></div>
+
+          
+          </div>
+          </div>
+          
+          <div data-role="popup" id="popupStature" data-theme="e" style="max-width:400px"><a href="#" data-rel="back" data-role="button" data-theme="e" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a><h3>Stature</h3><p>The vertical distance from the floor to the top of the head.</p></div>
+            <div data-role="popup" id="popupShoulderHt" data-theme="e"  style="max-width:400px"><a href="#" data-rel="back" data-role="button" data-theme="e" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a><h3>Shoulder Height</h3><p>Average ratio of shoulder height to stature is 0.818. R<sup>2</sup>=0.93 and RMSE=16.34.</p><p> Measured from ground to the lateral border of the acromial process (notch in bone on top edge of shoulder).</p></div>
+		<div data-role="popup" id="popupElbow" data-theme="e"  style="max-width:400px"><a href="#" data-rel="back" data-role="button" data-theme="e" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a><h3>Elbow Height</h3><p>Average ratio of elbow height to stature is 0.630. R<sup>2</sup>=0.20 and RMSE=18.07.</p><p> Measured from ground to radiale (highest point on the outside edge of the radius).</p></div>
+        <div data-role="popup" id="popupWrist" data-theme="e"  style="max-width:400px"><a href="#" data-rel="back" data-role="button" data-theme="e" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a><h3>Wrist Height</h3><p>Average ratio of wrist height to stature is 0.485. R<sup>2</sup>=0.73 and RMSE=21.47.</p><p> Measured from ground to the stylion (the lowest point on the bottom of the radius).</p></div>
+        <div data-role="popup" id="popupFingertip" data-theme="e"  style="max-width:400px"><a href="#" data-rel="back" data-role="button" data-theme="e" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a><h3>Fingertip Height</h3><p>Average ratio of fingertip height to stature is 0.377. R<sup>2</sup>=0.59 and RMSE=24.32.</p><p> Measured from ground to the tip of the middle finger. Fingers are extended with hand pointing at ground.</p></div>
+        <div data-role="popup" id="popupAnkle" data-theme="e"  style="max-width:400px"><a href="#" data-rel="back" data-role="button" data-theme="e" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a><h3>Ankle Height</h3><p>Average ratio of ankle height to stature is 0.0.039. R<sup>2</sup>=0.21 and RMSE=4.87.</p><p> Measured from ground to the lateral malleolus (outside of ankle bone).</p></div>
+        <div data-role="popup" id="popupShoulderBreadth" data-theme="e"  style="max-width:400px"><a href="#" data-rel="back" data-role="button" data-theme="e" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a><h3>Shoulder Breadth</h3><p>Average ratio of shoulder breadth to stature is 0.259. R<sup>2</sup>=0.15 and RMSE=23.89.</p><p> Measured at the outside of the shoulders.</p></div>
+        <div data-role="popup" id="popupHipBreadth" data-theme="e" style="max-width:400px"><a href="#" data-rel="back" data-role="button" data-theme="e" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a><h3>Hip Breadth</h3><p>Average ratio of hip breadth to stature is 0.191. R<sup>2</sup>=0.20 and RMSE=18.07.</p><p> Measured at the height of maximum buttock protuberance.</p></div>
+        <div data-role="popup" id="popupPopliteal" data-theme="e" style="max-width:400px"><a href="#" data-rel="back" data-role="button" data-theme="e" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a><h3>Popliteal Height</h3><p>Average ratio of popliteal height to stature is 0.285. R<sup>2</sup>=0.76 and RMSE=12.97.</p><p> Measured from ground to the lateral femoral epicondyle (knee pivot point).</p></div>
+        <div data-role="popup" id="popupHipHt" data-theme="e" style="max-width:400px"><a href="#" data-rel="back" data-role="button" data-theme="e" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a><h3>Hip Height (Leg Length)</h3><p>Average ratio of leg length to stature is 0.530. R<sup>2</sup>=0.75 and RMSE=24.01.</p><p> Measured from ground to the top of the trochanter (bony part at the outside, top of the femur).</p></div>
+        <div data-role="popup" id="popupUpperArm" data-theme="e" style="max-width:400px"><a href="#" data-rel="back" data-role="button" data-theme="e" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a><h3>Upper Arm Length</h3><p>Average ratio of upper arm length to stature is 0.186. R<sup>2</sup>=0.64 and RMSE=10.28.</p><p> Measured from the acromial process (notch in bone on top edge of shoulder) to radiale (highest point on the outside edge of the radius).</p></div>
+        <div data-role="popup" id="popupLowerArm" data-theme="e" style="max-width:400px"><a href="#" data-rel="back" data-role="button" data-theme="e" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a><h3>Lower Arm Length</h3><p>Average ratio of lower arm length to stature is 0.146. R<sup>2</sup>=0.48 and RMSE=11.25.</p><p> Measured from the radiale (highest point on the outside edge of radius) to the stylion (the lowest point on the bottom of the radius).</p></div>
+        <div data-role="popup" id="popupHand" data-theme="e" style="max-width:400px"><a href="#" data-rel="back" data-role="button" data-theme="e" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a><h3>Hand Length</h3><p>Average ratio of hand length to stature is 0.108. R<sup>2</sup>=0.42 and RMSE=7.44.</p><p> Measured from the stylion (the lowest point on the bottom of the radius) to the tip of the third finger with the hand flat and fingers together.</p></div>
+          
+          <div data-role="footer" data-position="fixed" data-tap-toggle="false"> 
+              <div data-role="navbar">
+              <ul>
+                  <li><a href="#mainView" data-direction="reverse" data-transition="slide" data-theme="b"><img src="./images/navbar_home.png" style="width:20px"></a></li>
+                  <li><a href="#mvView" data-transition="slide" data-theme="b"><img src="./images/navbar_mv.png" style="width:20px"></a></li>
+                  <li><a href="#kView" class="ui-btn-active ui-state-persist" data-theme="b"><img src="./images/navbar_k.png" style="width:20px"></a></li>
+                  <li><a href="#nView" data-transition="slide" data-theme="b"><img src="./images/navbar_n.png" style="width:20px"></a></li>
+
+              </ul>
+              </div>
+          </div>
+          
+          
+          
+          
+          
+          </div>
+          
+          
+
+      
+      <div data-role="dialog" id="nBackground" data-overlay-theme="d"> 
+     
+     
+         <div data-role="header" data-theme="b">
+             <h1>Background</h1>
+        </div>
+          <div data-role="content">
+
+<p>The focus of the three National Health Examination Surveys (NHES) was the civilian population of the United States from 1959 to 1970. NHES was succeeded in 1971 by the National Health and Nutrition Examination Survey (NHANES) run by the Centers for Disease Control and Prevention (CDC). NHANES I, II, and III were compiled in the years 1971-1975, 1976-1980, and 1988-1994, respectively. Of late (1999-2006), NHANES databases have been compiled every two years in order to avoid temporal errors in anthropometric analyses. However, they are not comprehensive, and are characterized by a dearth of anthropometry in addition to stature and BMI.</p>
+
+<p>This calculator allows you to enter a desired population composition (expressed as a percentage of males in the population) and percentile; the stature, mass, or BMI are returned for the given composition and percentile. A histogram of the measures is also provided.</p>
+
+<p>The NHANES data are available for download directly from the CDC.</p>
+
+          </div>
+          <div data-role="footer"><h1></h1>
+              </div>
+    </div>
+    
+    
+       <div data-role="page" id="nView"> 
+      
+      
+
+          <div data-role="header" > 
+
+              <h1></h1>
+              
+              <a href="#nBackground" data-icon="info" data-rel="dialog" data-theme="b" class="ui-btn-right">Background</a>
+
+
+
+          </div>
+          <div data-role="content" style="text-align:center;">
+          
+          <div data-role="fieldcontain" style="width:325px; margin:auto; text-align:center;" >
+                              Population composition (% males)
+
+			<fieldset id="nhanes_genderSplit_radio" data-role="controlgroup" data-type="horizontal" data-mini="true" style="margin-top:5px">
+                      
+                      <input type="radio" name="nhanes_genderSplit" id="nhanes_genderSplit" value="100"/>
+                      <label for="nhanes_genderSplit">100%</label>
+
+                      <input type="radio" name="nhanes_genderSplit" id="nhanes_genderSplit_75m" value="75"/>
+                      <label for="nhanes_genderSplit_75m">75%</label>
+                      
+                      <input type="radio" name="nhanes_genderSplit" id="nhanes_genderSplit_50m" value="50"/>
+                      <label for="nhanes_genderSplit_50m" checked="checked">50%</label>
+                      
+                      <input type="radio" name="nhanes_genderSplit" id="nhanes_genderSplit_25m" value="25"/>
+                      <label for="nhanes_genderSplit_25m">25%</label>
+                      
+                      <input type="radio" name="nhanes_genderSplit" id="nhanes_genderSplit_0m" value="0"/>
+                      <label for="nhanes_genderSplit_0m">0%</label>
+                      
+             </fieldset>
+            <div style="text-align:center; background-color:white; margin-top:10px; -moz-border-radius: 20px; -webkit-border-radius: 20px; padding:5px;">
+            <label for="nhanes_dimension" class="select" class="ui-hidden-accessible"></label>
+                <select name="nhanes_dimension" id="nhanes_dimension"  data-native-menu="false">
+                <option value="mass">Mass</option>
+                <option value="BMI">BMI</option>
+                <option value="stature">Stature</option>
+                </select>
+            <p style="margin:0">&nbsp;</p>
+            <label for="nhanes_slider" class="ui-hidden-accessible">Percentile</label>
+            <input type="range" name="nhanes_slider" id="nhanes_slider" value="50" min="1" max="99" />
+            
+            <p id="nhanes_output" style="font-weight:bold;"></p>
+
+			<img id="nhanes_histogram" src="./images/nhanes/default.png" style="width:100%" alt="histrogram for given dimension and gender split">
+            
+            </div>	
+           </div>
+
+          </div>
+          
+          <div data-role="footer" data-position="fixed" data-tap-toggle="false"> 
+              <div data-role="navbar">
+              <ul>
+                  <li><a href="#mainView" data-direction="reverse" data-transition="slide" data-theme="b"><img src="./images/navbar_home.png" style="width:20px"></a></li>
+                  <li><a href="#mvView" data-transition="slide" data-theme="b"><img src="./images/navbar_mv.png" style="width:20px"></a></li>
+                  <li><a href="#kView" data-transition="slide" data-theme="b"><img src="./images/navbar_k.png" style="width:20px"></a></li>
+                  <li><a href="#nView" class="ui-btn-active ui-state-persist" data-theme="b"><img src="./images/navbar_n.png" style="width:20px"></a></li>
+
+              </ul>
+              </div>
+          </div>
+          
+          
+          
+          </div>
+          
+      
+
+      
+  </body>
+</html>

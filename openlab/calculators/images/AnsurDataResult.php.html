@@ -1,0 +1,2624 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Untitled Document</title>
+<script language="javascript" src="AnsurDataResult.php_files/tween.js" type="text/ecmascript">
+</script>
+
+<script type="text/javascript" src="AnsurDataResult.php_files/browser_detect.js"></script>
+<script language="javascript" type="text/javascript">
+
+entranceValue= new Array();
+function test(size)
+{
+
+for(i=0; i<35; i++)
+	{
+	entranceValue[i]=0;
+	}
+	var browser = new BrowserDetect();
+	if(browser.isSafari)
+	{
+	//size=Number(size);
+		for(i=0;i<size; i++)
+		{
+		document.getElementById("collapse"+ i).style.width="52em";
+		}
+	}
+	var y= printHistogram(size);
+}
+percentile=15;
+function rewind(pic,num,pictureHeight)
+{
+	  t2 = new Tween(document.getElementById('collapse'+num).style,'height',Tween.regularEaseInOut,pictureHeight,23,1,'px');
+	  t2.start();
+	document.getElementById(pic).src="images/arrowSide.png";
+}
+function changePic(pic,num)
+{
+	pictureHeight=document.getElementById('DimensionPic'+num).height;
+	containerHeight=document.getElementById('rightcolumn1'+num).style.height;
+	containerHeight=pictureHeight;
+	containerHeight1=containerHeight+"px";
+	document.getElementById('rightcolumn1'+num).style.height=containerHeight1;
+	mainContainerHeight=containerHeight+190;
+
+	if(document.getElementById(pic).src=="http://localhost/~rob/images/arrowSide.png")
+	{
+		document.getElementById(pic).src="images/arrowDown1.png";
+	  t1 = new Tween(document.getElementById('collapse'+num).style,'height',Tween.regularEaseInOut,23,mainContainerHeight,1,'px');
+	  t1.start();
+	}
+	else
+	{
+	var x=rewind(pic,num,mainContainerHeight);
+	}
+}
+
+function upperPercentile(inputSelected,picture)
+{
+	percentile+=5;
+	if( percentile<0 || percentile>50)
+	{
+	}
+	else
+	{
+	inputSelected1=inputSelected+percentile;
+	pastPercentile=document.getElementById(inputSelected);
+	document.getElementById(picture).style.background='url(images/background'+percentile+'.png)';
+	pastPercentile.value=document.getElementById(inputSelected1).innerHTML;
+	}
+}
+function lowerPercentile(inputSelected,picture)
+{
+	percentile-=5;
+	if( percentile<0 || percentile>50)
+	{
+	}
+	else
+	{
+	inputSelected1=inputSelected+percentile;
+	pastPercentile=document.getElementById(inputSelected);
+	image="images/background"+percentile+".png";
+	document.getElementById(picture).style.background='url(images/background'+percentile+'.png)';
+	pastPercentile.value=document.getElementById(inputSelected1).innerHTML;
+	}
+
+}
+
+function download1()
+{
+var x= document.values.submit();
+}
+
+
+
+/*function download(dimension,gender)
+{
+
+ var xhr=null;
+		
+		   try
+		   {
+			 xhr = new XMLHttpRequest(); 
+		   } catch(e)
+		   { 
+			 try { xhr = new ActiveXObject("Msxml2.XMLHTTP"); } 
+			 catch (e2)
+			{ 
+			   try { xhr = new ActiveXObject("Microsoft.XMLHTTP"); } 
+			   catch (e) {}
+			}
+		  }
+ xhr.onreadystatechange = function()
+		   { 
+							
+			 if(xhr.readyState == 4)
+			 {
+				if(xhr.status == 200)
+					{ 
+					//document.getElementById("ADigit").innerHTML=xhr.responseText;
+						document.write(xhr.responseText);
+						//alert("it might Have worked");
+					}
+			}
+		  } 
+	if(gender == "Male")
+	{
+	var url="AnsurDataDownload.php"+"?m=Male";
+	url=url+"&d="+dimension;
+	}
+	else
+	{
+	var url="AnsurDataDownload.php"+"?m=Female";
+	url=url+"&d="+dimension;
+	}
+	alert(url);
+xhr.open("POST",url, true);
+xhr.send(null); 
+
+}
+*/</script>
+
+<style type="text/css">
+<!--
+body {
+	font-family:"Courier New", Courier, monospace;
+	margin: 0; /* it's good practice to zero the margin and padding of the body element to account for differing browser defaults */
+	padding: 0;
+	text-align: center; /* this centers the container in IE 5* browsers. The text is then set to the left aligned default in the #container selector */
+	color: #000000;
+}
+.oneColLiqCtr #container {
+	width: 70%;  /* this will create a container 80% of the browser width */
+	background: #FFFFFF;
+	margin: 0 auto; /* the auto margins (in conjunction with a width) center the page */
+	text-align: left; /* this overrides the text-align: center on the body element. */
+}
+.oneColLiqCtr #mainContent {
+	padding: 0 20px; /* remember that padding is the space inside the div box and margin is the space outside the div box */
+}
+
+#firstHeader
+{
+width:100%;
+height:60px;
+margin: 0; /* it's good practice to zero the margin and padding of the body element to account for differing browser defaults */
+padding-top:8px;
+padding-bottom:3px;
+text-align: center; /* this centers the container in IE 5* browsers. The text is then set to the left aligned default in the #container selector */
+color: #000000;
+background-image:url(images/percentile/testbackground.png);
+}
+
+#secondHeader
+{
+width: 54%;
+margin: 0 auto; /* the auto margins (in conjunction with a width) center the page */
+text-align:left;
+}
+
+#header
+{
+width:97.8%;
+height:50px;
+padding-left:20px;
+padding-top:20px;
+padding-bottom:20px;
+position:relative;
+}
+
+#header a
+{
+font-size:12px;
+color:#FFFFFF;
+}
+#header a:hover
+{
+text-decoration:none;
+}
+#downloadAll
+{
+	position:absolute;
+	width:auto;
+	left: 814px;
+	top: 36px;
+}
+
+#OpenDesignLab
+{
+	font-family:"Courier New", Courier, monospace;
+	position:absolute;
+	width:auto;
+	color:#FFFFFF;
+	font-size:12px;
+	left: 368px;
+	top: 42px;
+}
+
+#OpenDesignLab a
+{
+font-size:10px;
+color:#FFFFFF;
+}
+
+#OpenDesignLab a:hover
+{
+text-decoration:none;
+}
+.space
+{
+height:10px;
+}
+.center
+{
+text-align:center;
+margin: 0;
+height:auto;
+}
+.center table
+{
+margin-left:0;
+margin-right:0;
+margin-top:0;
+margin-bottom:0;
+}
+
+table
+{
+margin-left:0;
+margin-right:0;
+margin-top:0;
+margin-bottom:0;
+}
+.collapse
+{
+height:23px;
+border: 1px solid #000000;
+overflow:hidden;
+margin:0 auto;
+width:42.5em;
+}
+.subcontainer
+{
+margin: 0 auto;
+width:42.5em;
+text-align: left; /* this overrides the text-align: center on the body element. */
+font-family:"Courier New", Courier, monospace;
+font-size:16px;
+height:21px;
+}
+
+
+.leftcolumn
+{
+padding-top:3px;
+padding-bottom:3px;
+padding-left:3px;
+float:left;
+/*background-color:#000066;
+*/
+background-color:#455AA8;
+width:40em;
+text-align:left;
+border-bottom:1px solid #000000;
+border-right:1px solid #000000;
+color:#FFFFFF;
+}
+
+.subcontainer1
+{
+margin: 5 auto;
+width:40.3em;
+text-align: left; /* this overrides the text-align: center on the body element. */
+font-family:Arial, Helvetica, sans-serif;
+font-size:16px;
+padding-top:5px;
+height:auto;
+}
+
+.rightcolumn
+{
+background:#FFFFFF;
+text-align:right;
+}
+
+.leftcolumn1
+{
+float:left;
+width:11em;
+background:#FFFFFF;
+text-align:center;
+height:200px;
+}
+
+
+.rightcolumn1
+{
+background:#FFFFFF;
+text-align:left;
+border:1px solid #000000;
+margin: 0 0 0 16em;
+font-family:Arial, Helvetica, sans-serif;
+font-size:14px;
+height:438px;
+padding-left:0px;
+padding-right:0px;
+padding-top:0px;
+width:405px;
+}
+
+.graphHeader
+{
+margin: 0 auto;
+width:39.4em;
+margin-top:5px;
+margin-left:15px;
+}
+.graphHeader1
+{
+font-family:"Courier New", Courier, monospace;
+font-size:16px;
+border-bottom:1px solid #000000;
+text-align:center;
+background:#666666;
+padding-top:3px;
+padding-bottom:3px;
+color:#000000;
+height:auto;
+width:100%;
+}
+
+.graph
+{
+width:100%;
+text-align:center;
+font-family:"Courier New", Courier, monospace;
+font-size:16px;
+padding-top:5px;
+padding-bottom:3px;
+}
+
+.answers
+{
+font-size:10px;
+font-family:"Courier New", Courier, monospace;
+}
+.clearfloat { /* this class should be placed on a div or break element and should be the final element before the close of a container that should fully contain a float */
+	clear:both;
+    height:0;
+    font-size: 1px;
+    line-height: 0px;
+}
+
+#hiddenForm
+{
+visibility:hidden;
+height:1px;
+overflow:hidden;
+}
+
+canvas { border: 1px solid black; }
+
+-->
+</style><script language="javascript" type="text/javascript">
+		
+function drawLine()
+{
+
+			 start=0;
+			 var canvas = document.getElementById('histogram0');
+			k=1;
+			if(0<35)
+			{
+			
+        	var ctx0 = canvas.getContext('2d');
+		//ctx0.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value00).innerHTML;
+		xValue[1]=document.getElementById(value03).innerHTML;
+		xValue[2]=document.getElementById(value05).innerHTML;
+		xValue[3]=document.getElementById(value07).innerHTML;
+		xValue[4]=document.getElementById(value09).innerHTML;*/
+		ctx0.moveTo(100,200);
+		ctx0.lineTo(35,3);
+		ctx0.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram1');
+			k=1;
+			if(1<35)
+			{
+			
+        	var ctx1 = canvas.getContext('2d');
+		//ctx1.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value10).innerHTML;
+		xValue[1]=document.getElementById(value13).innerHTML;
+		xValue[2]=document.getElementById(value15).innerHTML;
+		xValue[3]=document.getElementById(value17).innerHTML;
+		xValue[4]=document.getElementById(value19).innerHTML;*/
+		ctx1.moveTo(100,200);
+		ctx1.lineTo(35,3);
+		ctx1.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram2');
+			k=1;
+			if(2<35)
+			{
+			
+        	var ctx2 = canvas.getContext('2d');
+		//ctx2.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value20).innerHTML;
+		xValue[1]=document.getElementById(value23).innerHTML;
+		xValue[2]=document.getElementById(value25).innerHTML;
+		xValue[3]=document.getElementById(value27).innerHTML;
+		xValue[4]=document.getElementById(value29).innerHTML;*/
+		ctx2.moveTo(100,200);
+		ctx2.lineTo(35,3);
+		ctx2.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram3');
+			k=1;
+			if(3<35)
+			{
+			
+        	var ctx3 = canvas.getContext('2d');
+		//ctx3.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value30).innerHTML;
+		xValue[1]=document.getElementById(value33).innerHTML;
+		xValue[2]=document.getElementById(value35).innerHTML;
+		xValue[3]=document.getElementById(value37).innerHTML;
+		xValue[4]=document.getElementById(value39).innerHTML;*/
+		ctx3.moveTo(100,200);
+		ctx3.lineTo(35,3);
+		ctx3.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram4');
+			k=1;
+			if(4<35)
+			{
+			
+        	var ctx4 = canvas.getContext('2d');
+		//ctx4.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value40).innerHTML;
+		xValue[1]=document.getElementById(value43).innerHTML;
+		xValue[2]=document.getElementById(value45).innerHTML;
+		xValue[3]=document.getElementById(value47).innerHTML;
+		xValue[4]=document.getElementById(value49).innerHTML;*/
+		ctx4.moveTo(100,200);
+		ctx4.lineTo(35,3);
+		ctx4.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram5');
+			k=1;
+			if(5<35)
+			{
+			
+        	var ctx5 = canvas.getContext('2d');
+		//ctx5.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value50).innerHTML;
+		xValue[1]=document.getElementById(value53).innerHTML;
+		xValue[2]=document.getElementById(value55).innerHTML;
+		xValue[3]=document.getElementById(value57).innerHTML;
+		xValue[4]=document.getElementById(value59).innerHTML;*/
+		ctx5.moveTo(100,200);
+		ctx5.lineTo(35,3);
+		ctx5.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram6');
+			k=1;
+			if(6<35)
+			{
+			
+        	var ctx6 = canvas.getContext('2d');
+		//ctx6.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value60).innerHTML;
+		xValue[1]=document.getElementById(value63).innerHTML;
+		xValue[2]=document.getElementById(value65).innerHTML;
+		xValue[3]=document.getElementById(value67).innerHTML;
+		xValue[4]=document.getElementById(value69).innerHTML;*/
+		ctx6.moveTo(100,200);
+		ctx6.lineTo(35,3);
+		ctx6.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram7');
+			k=1;
+			if(7<35)
+			{
+			
+        	var ctx7 = canvas.getContext('2d');
+		//ctx7.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value70).innerHTML;
+		xValue[1]=document.getElementById(value73).innerHTML;
+		xValue[2]=document.getElementById(value75).innerHTML;
+		xValue[3]=document.getElementById(value77).innerHTML;
+		xValue[4]=document.getElementById(value79).innerHTML;*/
+		ctx7.moveTo(100,200);
+		ctx7.lineTo(35,3);
+		ctx7.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram8');
+			k=1;
+			if(8<35)
+			{
+			
+        	var ctx8 = canvas.getContext('2d');
+		//ctx8.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value80).innerHTML;
+		xValue[1]=document.getElementById(value83).innerHTML;
+		xValue[2]=document.getElementById(value85).innerHTML;
+		xValue[3]=document.getElementById(value87).innerHTML;
+		xValue[4]=document.getElementById(value89).innerHTML;*/
+		ctx8.moveTo(100,200);
+		ctx8.lineTo(35,3);
+		ctx8.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram9');
+			k=1;
+			if(9<35)
+			{
+			
+        	var ctx9 = canvas.getContext('2d');
+		//ctx9.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value90).innerHTML;
+		xValue[1]=document.getElementById(value93).innerHTML;
+		xValue[2]=document.getElementById(value95).innerHTML;
+		xValue[3]=document.getElementById(value97).innerHTML;
+		xValue[4]=document.getElementById(value99).innerHTML;*/
+		ctx9.moveTo(100,200);
+		ctx9.lineTo(35,3);
+		ctx9.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram10');
+			k=1;
+			if(10<35)
+			{
+			
+        	var ctx10 = canvas.getContext('2d');
+		//ctx10.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value100).innerHTML;
+		xValue[1]=document.getElementById(value103).innerHTML;
+		xValue[2]=document.getElementById(value105).innerHTML;
+		xValue[3]=document.getElementById(value107).innerHTML;
+		xValue[4]=document.getElementById(value109).innerHTML;*/
+		ctx10.moveTo(100,200);
+		ctx10.lineTo(35,3);
+		ctx10.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram11');
+			k=1;
+			if(11<35)
+			{
+			
+        	var ctx11 = canvas.getContext('2d');
+		//ctx11.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value110).innerHTML;
+		xValue[1]=document.getElementById(value113).innerHTML;
+		xValue[2]=document.getElementById(value115).innerHTML;
+		xValue[3]=document.getElementById(value117).innerHTML;
+		xValue[4]=document.getElementById(value119).innerHTML;*/
+		ctx11.moveTo(100,200);
+		ctx11.lineTo(35,3);
+		ctx11.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram12');
+			k=1;
+			if(12<35)
+			{
+			
+        	var ctx12 = canvas.getContext('2d');
+		//ctx12.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value120).innerHTML;
+		xValue[1]=document.getElementById(value123).innerHTML;
+		xValue[2]=document.getElementById(value125).innerHTML;
+		xValue[3]=document.getElementById(value127).innerHTML;
+		xValue[4]=document.getElementById(value129).innerHTML;*/
+		ctx12.moveTo(100,200);
+		ctx12.lineTo(35,3);
+		ctx12.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram13');
+			k=1;
+			if(13<35)
+			{
+			
+        	var ctx13 = canvas.getContext('2d');
+		//ctx13.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value130).innerHTML;
+		xValue[1]=document.getElementById(value133).innerHTML;
+		xValue[2]=document.getElementById(value135).innerHTML;
+		xValue[3]=document.getElementById(value137).innerHTML;
+		xValue[4]=document.getElementById(value139).innerHTML;*/
+		ctx13.moveTo(100,200);
+		ctx13.lineTo(35,3);
+		ctx13.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram14');
+			k=1;
+			if(14<35)
+			{
+			
+        	var ctx14 = canvas.getContext('2d');
+		//ctx14.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value140).innerHTML;
+		xValue[1]=document.getElementById(value143).innerHTML;
+		xValue[2]=document.getElementById(value145).innerHTML;
+		xValue[3]=document.getElementById(value147).innerHTML;
+		xValue[4]=document.getElementById(value149).innerHTML;*/
+		ctx14.moveTo(100,200);
+		ctx14.lineTo(35,3);
+		ctx14.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram15');
+			k=1;
+			if(15<35)
+			{
+			
+        	var ctx15 = canvas.getContext('2d');
+		//ctx15.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value150).innerHTML;
+		xValue[1]=document.getElementById(value153).innerHTML;
+		xValue[2]=document.getElementById(value155).innerHTML;
+		xValue[3]=document.getElementById(value157).innerHTML;
+		xValue[4]=document.getElementById(value159).innerHTML;*/
+		ctx15.moveTo(100,200);
+		ctx15.lineTo(35,3);
+		ctx15.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram16');
+			k=1;
+			if(16<35)
+			{
+			
+        	var ctx16 = canvas.getContext('2d');
+		//ctx16.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value160).innerHTML;
+		xValue[1]=document.getElementById(value163).innerHTML;
+		xValue[2]=document.getElementById(value165).innerHTML;
+		xValue[3]=document.getElementById(value167).innerHTML;
+		xValue[4]=document.getElementById(value169).innerHTML;*/
+		ctx16.moveTo(100,200);
+		ctx16.lineTo(35,3);
+		ctx16.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram17');
+			k=1;
+			if(17<35)
+			{
+			
+        	var ctx17 = canvas.getContext('2d');
+		//ctx17.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value170).innerHTML;
+		xValue[1]=document.getElementById(value173).innerHTML;
+		xValue[2]=document.getElementById(value175).innerHTML;
+		xValue[3]=document.getElementById(value177).innerHTML;
+		xValue[4]=document.getElementById(value179).innerHTML;*/
+		ctx17.moveTo(100,200);
+		ctx17.lineTo(35,3);
+		ctx17.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram18');
+			k=1;
+			if(18<35)
+			{
+			
+        	var ctx18 = canvas.getContext('2d');
+		//ctx18.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value180).innerHTML;
+		xValue[1]=document.getElementById(value183).innerHTML;
+		xValue[2]=document.getElementById(value185).innerHTML;
+		xValue[3]=document.getElementById(value187).innerHTML;
+		xValue[4]=document.getElementById(value189).innerHTML;*/
+		ctx18.moveTo(100,200);
+		ctx18.lineTo(35,3);
+		ctx18.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram19');
+			k=1;
+			if(19<35)
+			{
+			
+        	var ctx19 = canvas.getContext('2d');
+		//ctx19.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value190).innerHTML;
+		xValue[1]=document.getElementById(value193).innerHTML;
+		xValue[2]=document.getElementById(value195).innerHTML;
+		xValue[3]=document.getElementById(value197).innerHTML;
+		xValue[4]=document.getElementById(value199).innerHTML;*/
+		ctx19.moveTo(100,200);
+		ctx19.lineTo(35,3);
+		ctx19.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram20');
+			k=1;
+			if(20<35)
+			{
+			
+        	var ctx20 = canvas.getContext('2d');
+		//ctx20.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value200).innerHTML;
+		xValue[1]=document.getElementById(value203).innerHTML;
+		xValue[2]=document.getElementById(value205).innerHTML;
+		xValue[3]=document.getElementById(value207).innerHTML;
+		xValue[4]=document.getElementById(value209).innerHTML;*/
+		ctx20.moveTo(100,200);
+		ctx20.lineTo(35,3);
+		ctx20.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram21');
+			k=1;
+			if(21<35)
+			{
+			
+        	var ctx21 = canvas.getContext('2d');
+		//ctx21.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value210).innerHTML;
+		xValue[1]=document.getElementById(value213).innerHTML;
+		xValue[2]=document.getElementById(value215).innerHTML;
+		xValue[3]=document.getElementById(value217).innerHTML;
+		xValue[4]=document.getElementById(value219).innerHTML;*/
+		ctx21.moveTo(100,200);
+		ctx21.lineTo(35,3);
+		ctx21.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram22');
+			k=1;
+			if(22<35)
+			{
+			
+        	var ctx22 = canvas.getContext('2d');
+		//ctx22.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value220).innerHTML;
+		xValue[1]=document.getElementById(value223).innerHTML;
+		xValue[2]=document.getElementById(value225).innerHTML;
+		xValue[3]=document.getElementById(value227).innerHTML;
+		xValue[4]=document.getElementById(value229).innerHTML;*/
+		ctx22.moveTo(100,200);
+		ctx22.lineTo(35,3);
+		ctx22.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram23');
+			k=1;
+			if(23<35)
+			{
+			
+        	var ctx23 = canvas.getContext('2d');
+		//ctx23.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value230).innerHTML;
+		xValue[1]=document.getElementById(value233).innerHTML;
+		xValue[2]=document.getElementById(value235).innerHTML;
+		xValue[3]=document.getElementById(value237).innerHTML;
+		xValue[4]=document.getElementById(value239).innerHTML;*/
+		ctx23.moveTo(100,200);
+		ctx23.lineTo(35,3);
+		ctx23.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram24');
+			k=1;
+			if(24<35)
+			{
+			
+        	var ctx24 = canvas.getContext('2d');
+		//ctx24.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value240).innerHTML;
+		xValue[1]=document.getElementById(value243).innerHTML;
+		xValue[2]=document.getElementById(value245).innerHTML;
+		xValue[3]=document.getElementById(value247).innerHTML;
+		xValue[4]=document.getElementById(value249).innerHTML;*/
+		ctx24.moveTo(100,200);
+		ctx24.lineTo(35,3);
+		ctx24.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram25');
+			k=1;
+			if(25<35)
+			{
+			
+        	var ctx25 = canvas.getContext('2d');
+		//ctx25.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value250).innerHTML;
+		xValue[1]=document.getElementById(value253).innerHTML;
+		xValue[2]=document.getElementById(value255).innerHTML;
+		xValue[3]=document.getElementById(value257).innerHTML;
+		xValue[4]=document.getElementById(value259).innerHTML;*/
+		ctx25.moveTo(100,200);
+		ctx25.lineTo(35,3);
+		ctx25.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram26');
+			k=1;
+			if(26<35)
+			{
+			
+        	var ctx26 = canvas.getContext('2d');
+		//ctx26.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value260).innerHTML;
+		xValue[1]=document.getElementById(value263).innerHTML;
+		xValue[2]=document.getElementById(value265).innerHTML;
+		xValue[3]=document.getElementById(value267).innerHTML;
+		xValue[4]=document.getElementById(value269).innerHTML;*/
+		ctx26.moveTo(100,200);
+		ctx26.lineTo(35,3);
+		ctx26.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram27');
+			k=1;
+			if(27<35)
+			{
+			
+        	var ctx27 = canvas.getContext('2d');
+		//ctx27.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value270).innerHTML;
+		xValue[1]=document.getElementById(value273).innerHTML;
+		xValue[2]=document.getElementById(value275).innerHTML;
+		xValue[3]=document.getElementById(value277).innerHTML;
+		xValue[4]=document.getElementById(value279).innerHTML;*/
+		ctx27.moveTo(100,200);
+		ctx27.lineTo(35,3);
+		ctx27.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram28');
+			k=1;
+			if(28<35)
+			{
+			
+        	var ctx28 = canvas.getContext('2d');
+		//ctx28.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value280).innerHTML;
+		xValue[1]=document.getElementById(value283).innerHTML;
+		xValue[2]=document.getElementById(value285).innerHTML;
+		xValue[3]=document.getElementById(value287).innerHTML;
+		xValue[4]=document.getElementById(value289).innerHTML;*/
+		ctx28.moveTo(100,200);
+		ctx28.lineTo(35,3);
+		ctx28.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram29');
+			k=1;
+			if(29<35)
+			{
+			
+        	var ctx29 = canvas.getContext('2d');
+		//ctx29.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value290).innerHTML;
+		xValue[1]=document.getElementById(value293).innerHTML;
+		xValue[2]=document.getElementById(value295).innerHTML;
+		xValue[3]=document.getElementById(value297).innerHTML;
+		xValue[4]=document.getElementById(value299).innerHTML;*/
+		ctx29.moveTo(100,200);
+		ctx29.lineTo(35,3);
+		ctx29.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram30');
+			k=1;
+			if(30<35)
+			{
+			
+        	var ctx30 = canvas.getContext('2d');
+		//ctx30.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value300).innerHTML;
+		xValue[1]=document.getElementById(value303).innerHTML;
+		xValue[2]=document.getElementById(value305).innerHTML;
+		xValue[3]=document.getElementById(value307).innerHTML;
+		xValue[4]=document.getElementById(value309).innerHTML;*/
+		ctx30.moveTo(100,200);
+		ctx30.lineTo(35,3);
+		ctx30.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram31');
+			k=1;
+			if(31<35)
+			{
+			
+        	var ctx31 = canvas.getContext('2d');
+		//ctx31.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value310).innerHTML;
+		xValue[1]=document.getElementById(value313).innerHTML;
+		xValue[2]=document.getElementById(value315).innerHTML;
+		xValue[3]=document.getElementById(value317).innerHTML;
+		xValue[4]=document.getElementById(value319).innerHTML;*/
+		ctx31.moveTo(100,200);
+		ctx31.lineTo(35,3);
+		ctx31.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram32');
+			k=1;
+			if(32<35)
+			{
+			
+        	var ctx32 = canvas.getContext('2d');
+		//ctx32.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value320).innerHTML;
+		xValue[1]=document.getElementById(value323).innerHTML;
+		xValue[2]=document.getElementById(value325).innerHTML;
+		xValue[3]=document.getElementById(value327).innerHTML;
+		xValue[4]=document.getElementById(value329).innerHTML;*/
+		ctx32.moveTo(100,200);
+		ctx32.lineTo(35,3);
+		ctx32.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram33');
+			k=1;
+			if(33<35)
+			{
+			
+        	var ctx33 = canvas.getContext('2d');
+		//ctx33.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value330).innerHTML;
+		xValue[1]=document.getElementById(value333).innerHTML;
+		xValue[2]=document.getElementById(value335).innerHTML;
+		xValue[3]=document.getElementById(value337).innerHTML;
+		xValue[4]=document.getElementById(value339).innerHTML;*/
+		ctx33.moveTo(100,200);
+		ctx33.lineTo(35,3);
+		ctx33.stroke();	
+		alert('offcause it enetered');	
+			
+			}
+			 start=0;
+			 var canvas = document.getElementById('histogram34');
+			k=1;
+			if(34<35)
+			{
+			
+        	var ctx34 = canvas.getContext('2d');
+		//ctx34.translate(0,200);
+		//GET X VALUES
+	/*	xValue[0]=document.getElementById(value340).innerHTML;
+		xValue[1]=document.getElementById(value343).innerHTML;
+		xValue[2]=document.getElementById(value345).innerHTML;
+		xValue[3]=document.getElementById(value347).innerHTML;
+		xValue[4]=document.getElementById(value349).innerHTML;*/
+		ctx34.moveTo(100,200);
+		ctx34.lineTo(35,3);
+		ctx34.stroke();	
+		alert('offcause it enetered');	
+			
+			}	
+}			
+		function printHistogram(size)
+		{
+
+		var img = new Image(); 
+ 		img.src = "images/backgroundOfGrapg.jpg";
+	//img.src = "images/backgroundOfGrapg.jpg";
+		img.onload=function(){ //alert("It may be working"); 
+		
+			 start=0;
+			 var canvas = document.getElementById('histogram0');
+			k=1;
+			if(0<size)
+			{
+			
+        	var ctx0 = canvas.getContext('2d');
+			ctx0.translate(0,200);
+			//var range=-1182;
+			var range=1607-1278;
+			var x=400/ range;
+			increment=400/25;
+			compare=1443
+			increment1=range/25;
+			minimum=1278;
+			var y=200/300;
+			ctx0.scale(1,y);
+			var height='12';
+			var previousHeight='12';
+			next=16;
+			//alert(previousHeight);
+			Number(height);
+			Number(previousHeight);
+			//ctx0.beginPath();
+			ctx0.moveTo(0,-height);
+			max=24;
+			//alert(12);var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=10;
+		previousHeight=12;
+		next=16;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=16;
+		previousHeight=10;
+		next=19;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=19;
+		previousHeight=16;
+		next=35;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=35;
+		previousHeight=19;
+		next=52;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=52;
+		previousHeight=35;
+		next=60;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=60;
+		previousHeight=52;
+		next=91;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=91;
+		previousHeight=60;
+		next=114;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=114;
+		previousHeight=91;
+		next=118;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=118;
+		previousHeight=114;
+		next=153;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=153;
+		previousHeight=118;
+		next=133;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=133;
+		previousHeight=153;
+		next=146;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=146;
+		previousHeight=133;
+		next=151;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=151;
+		previousHeight=146;
+		next=132;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=132;
+		previousHeight=151;
+		next=121;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=121;
+		previousHeight=132;
+		next=112;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=112;
+		previousHeight=121;
+		next=84;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=84;
+		previousHeight=112;
+		next=74;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=74;
+		previousHeight=84;
+		next=36;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=36;
+		previousHeight=74;
+		next=38;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=38;
+		previousHeight=36;
+		next=31;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=31;
+		previousHeight=38;
+		next=20;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=20;
+		previousHeight=31;
+		next=4;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		var width=increment;
+		//ctx.drawImage(img,0,-200); 
+		ctx0.strokeStyle='#000000;'
+		ctx0.fillStyle = '#455AA8';
+		value=24;
+		value=value-1;
+		if(start>0)
+		{
+		if(height > previousHeight)
+		{
+		//alert(previousHeight);
+		ctx0.lineTo(start,-height);
+		ctx0.stroke();
+		x=1;
+		}
+		else if(height < previousHeight)
+		{
+		if(x==0)
+		{
+		//ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		ctx0.lineTo(start1,-height);
+		ctx0.stroke();	
+		}
+		else if(x==1)
+		{
+		ctx0.lineTo(start,-previousHeight);
+		start1=start+increment;
+		if(next>=height)
+		{
+		ctx0.lineTo(start1,-next);
+		}
+		else
+		{
+		ctx0.lineTo(start1,-height);
+		}
+		ctx0.stroke();		
+		x=0;
+		}
+		
+		}
+		}
+		
+		if( minimum < compare)
+		{
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		//alert(height);
+		}
+		else if(minimum > compare)
+		{
+		ctx0.fillStyle = '#FFFFFF';
+		ctx0.strokeRect (start,-height,increment,height);
+		ctx0.fillRect(start,-height,increment,height);
+		}
+			start+=increment;
+			minimum+=increment1;
+		height=4;
+		previousHeight=20;
+		next=4;
+		Number(height);
+		Number(previousHeight);
+		//Number(next);
+		}else{}		//alert("it is working");			
+			}
+
+		var x=drawLine();
+		}
+
+
+ 
+ 
+</script>
+</head><body class="oneColLiqCtr" onload='test("1")'>
+<!--<div style="background-color:#000033; height:10px;"></div>
+--><div id="firstHeader"><div id="secondHeader"><img src="AnsurDataResult.php_files/psu.png"><div id="OpenDesignLab"><span>Open Design Lab Ansur Data</span><span> <a href="#" onclick="download1()">Download All</a></span></div>
+</div></div>
+<div id="container">
+  <!--<div id="header"> <img src="images/psu.png"/>
+  <div id="OpenDesignLab">Open Design Lab Ansur Data <a href="#">Download All</a></div>
+  
+  </div>-->
+  <div id="mainContent">
+<div class="space"></div>
+<div class="center">
+<div style="height: 628px;" id="collapse0" class="collapse">
+<div class="subcontainer">
+<div class="leftcolumn">ACROMION_HT Male</div><div class="rightColumn" style="background-color: rgb(255, 255, 255);"><img src="AnsurDataResult.php_files/arrowDown1.png" id="pic0" onclick='changePic("pic0",0)' border="0"></div></div>
+<div style="padding: 7px 5px 3px; text-align: left; font-size: 13px;"></div>
+<div class="subcontainer1">
+<div class="leftcolumn1" id="leftcolumn10"><img src="AnsurDataResult.php_files/acro_ht.jpg" id="DimensionPic0" style="margin-top: auto; margin-bottom: auto;" border="0"></div><div style="height: 438px;" class="rightcolumn1" id="rightcolumn10"><div style="height: 438px; width: 0pt; visibility: hidden; vertical-align: middle; display: inline;"></div><div><div style="padding: 7px; background-color: rgb(153, 153, 153); text-align: center;">The vertical distance between a standing surface and the acromion landmark on the tip
+of the right shoulder is measured with an anthropometer.</div><div id="title0" style="text-align: center; padding-top: 4px;"><u>Histogram representation of ACROMION_HT</u></div><div style="margin: 0pt auto; text-align: center; width: 16em;"><table><tbody><tr><td><input value="previous" type="button"></td><td id="identifier0" style="background-color: rgb(69, 90, 168); color: rgb(255, 255, 255);">50th Percentile</td><td><input value="next" onclick='moveForward("0","1533")' type="button"></td></tr></tbody></table></div><div style="padding: 5px 10px 10px;" border="1"><canvas id="histogram0" width="385" height="200"></canvas></div></div></div>
+<div class="graphHeader"><div class="graphHeader1">ACROMION_HT Percentile Distribution in MM</div>
+<div style="padding-bottom: 7px;"><table style="text-align: center;" border="1" width="100%"><tbody><tr><td>1st</td><td>5th</td><td>10th</td><td>25th</td><td>35th</td><td>50th</td><td>75th</td><td>85th</td><td>90th</td><td>95th</td><td>99th</td></tr><tr><td id="value00">1278</td><td id="value01">1326</td><td id="value02">1352</td><td id="value03">1369</td><td id="value04">1395</td><td id="value05" style="background-color: rgb(69, 90, 168); color: rgb(255, 255, 255);">1443</td><td id="value06">1490</td><td id="value07">1516</td><td id="value08">1533</td><td id="value09">1559</td><td id="value010">1607</td></tr></tbody></table></div><div><form name="values1" method="post" action="AnsurDataDownload.php">   
+<span><input name="Download" value="Download Raw Data" type="submit"></span><span><input name="dimension" value="ACROMION_HT" readonly="true" style="visibility: hidden;" type="text"></span><span><input name="gender" value="Male" readonly="true" style="visibility: hidden;" type="text"></span></form></div>
+</div>
+</div>
+</div>
+</div>
+<br .clearfloat="">
+
+ 
+<!-- <div style="background-color:#999999; height:500px; position:relative; top:5px;" id="collapse2"><img align=""</div>
+-->	<!-- end #mainContent -->
+<div id="hiddenForm">
+<form name="values" method="post" action="AnsurDataDownload1.php">
+<span><input name="dimension0" value="ACROMION_HT" readonly="true" style="visibility: hidden;" type="text"></span><br><span><input name="gender" value="Male" readonly="true" style="visibility: hidden;" type="text"></span><span><input name="sizeOf" value="1" readonly="true" style="visibility: hidden;" type="text"></span></form>
+</div>
+</div>
+<!-- end #container --></div>
+
+
+</body></html>

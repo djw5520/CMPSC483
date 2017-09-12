@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>NHANES Calculator: Open Design Lab</title>
+   <meta name="viewport" content="width=device-width, initial-scale=1">   
+
+      <link rel="apple-touch-icon" href="./apple-touch-icon.png"/>
+	<meta charset="utf-8">
+
+
+<link rel="stylesheet" href="./css/themes/openlab_tools_v1.css" />
+  <link rel="stylesheet" href="./css/themes/jquery.mobile.icons.min.css" />
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile.structure-1.4.2.min.css" /> 
+  <link rel="stylesheet" href="./css/style.css">
+
+  <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script> 
+  <script src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
+ 
+  
+<script type="text/javascript" src="build_data.js">
+/* This script loads the data. Run build_data.php if the SQLite database is updated! */
+</script>
+
+<script type="text/javascript" src="./stats.js"></script>
+
+<script type="text/javascript">
+
+
+$( document ).on( "pagecreate", function( event ) {
+//force changes to these sliders to trigger change event below
+	$('#nhanes_slider_mass').val(50).slider('refresh');
+	$('#nhanes_slider_stature').val(50).slider('refresh');
+	$('#nhanes_slider_bmi').val(50).slider('refresh');
+
+});
+
+
+
+$(document).on("change",'input[name="nhanes_genderSplit"],#nhanes_slider_mass,#nhanes_slider_stature,#nhanes_slider_bmi',function(event){
+
+var nhanes_data = new Array();
+$('input:radio[name="nhanes_genderSplit"]').filter('[value="50"]').attr('checked', true).checkboxradio("refresh");
+
+
+
+if($('#nhanes_genderSplit').prop("checked") ){
+	split_val=100;
+	nhanes_data = data_100;
+}else if($('#nhanes_genderSplit_75m').prop("checked") ) {
+	split_val=75;
+	nhanes_data = data_75;
+}else if($('#nhanes_genderSplit_25m').prop("checked") ) {
+	split_val=25;
+	nhanes_data = data_25;
+}else if($('#nhanes_genderSplit_0m').prop("checked") ) {
+	split_val=0;
+	nhanes_data = data_0;
+}else {
+	split_val = 50;
+	nhanes_data = data_50;
+	$('#nhanes_genderSplit_50m').prop("checked",true).checkboxradio("refresh");
+	$('#nhanes_genderSplit').prop("checked",false).checkboxradio("refresh");
+	$('#nhanes_genderSplit_75m').prop("checked",false).checkboxradio("refresh");
+	$('#nhanes_genderSplit_25m').prop("checked",false).checkboxradio("refresh");
+	$('#nhanes_genderSplit_0m').prop("checked",false).checkboxradio("refresh");
+
+}
+
+
+/*****MASS*****/
+data_vector = nhanes_data['mass'];
+percentile_value = $('#nhanes_slider_mass').val();
+output_value = data_vector[percentile_value];
+suffix = getSuffix(percentile_value);
+$('#nhanes_output_mass').html(percentile_value + suffix + ' percentile: ' + output_value + ' kg');
+img_path = "./images/nhanes/" + 'mass' + split_val + ".png";
+$("#nhanes_histogram_mass").attr('src',img_path);
+
+/*****STATURE*****/
+data_vector = nhanes_data['stature'];
+percentile_value = $('#nhanes_slider_stature').val();
+output_value = data_vector[percentile_value];
+suffix = getSuffix(percentile_value);
+$('#nhanes_output_stature').html(percentile_value + suffix + ' percentile: ' + output_value + ' mm');
+img_path = "./images/nhanes/" + 'stature' + split_val + ".png";
+$("#nhanes_histogram_stature").attr('src',img_path);
+
+/*****BMI*****/
+data_vector = nhanes_data['BMI'];
+percentile_value = $('#nhanes_slider_bmi').val();
+output_value = data_vector[percentile_value];
+suffix = getSuffix(percentile_value);
+$('#nhanes_output_bmi').html(percentile_value + suffix + ' percentile: ' + output_value);
+img_path = "./images/nhanes/" + 'BMI' + split_val + ".png";
+$("#nhanes_histogram_bmi").attr('src',img_path);
+
+
+function getSuffix(percentile_value){
+	if ((percentile_value%10 ==1)&&(percentile_value!=11 )){
+		suffix = 'st';
+	} else if ((percentile_value%10 ==2)&&(percentile_value!=12 )){
+		suffix = 'nd';
+	} else if ((percentile_value%10 ==3)&&(percentile_value!=13)){
+		suffix = 'rd';
+	} else {
+		suffix = 'th';
+	}
+	return suffix;
+}
+	
+});
+
+
+
+</script>
+
+
+
+
+        
+        
+  </head>
+  <body onLoad="">   
+    
+    
+       <div data-role="page" id="pageView" data-theme="c"> 
+      
+      
+
+			<div data-role="header" > 
+			<div class="ui-bar" style="padding:0;">
+				<div id="headerLogoBlock"><a href="http://www.openlab.psu.edu/" target="_blank"><img src="./images/logo_tiny.png" border=0 style="height: 35px; margin-top:5px;"></a></div>
+				<div id="headerTitleBlock"><h1>NHANES Data Explorer</h1></div>
+				<div id="headerLinkBlock"><a href="http://www.openlab.psu.edu/" style="color:white" target="_blank">openlab.psu.edu</a></div>
+			</div>
+			</div>
+			
+          <div data-role="content">
+          
+          
+                              
+    <div style="width:700px; margin:auto">
+
+			<fieldset id="nhanes_genderSplit_radio" data-role="controlgroup" data-type="horizontal" data-mini="true" style="margin:5px 0 0 0; ">
+                      <div style="float:left; padding:8px; font-size:16px;">Gender split (males/females) </div>
+                      
+                      <input type="radio" name="nhanes_genderSplit" id="nhanes_genderSplit" value="100"/>
+                      <label for="nhanes_genderSplit">100% / 0%</label>
+
+                      <input type="radio" name="nhanes_genderSplit" id="nhanes_genderSplit_75m" value="75"/>
+                      <label for="nhanes_genderSplit_75m">75% / 25%</label>
+                      
+                      <input type="radio" name="nhanes_genderSplit" id="nhanes_genderSplit_50m" value="50"/>
+                      <label for="nhanes_genderSplit_50m" checked="checked">50% / 50%</label>
+                      
+                      <input type="radio" name="nhanes_genderSplit" id="nhanes_genderSplit_25m" value="25"/>
+                      <label for="nhanes_genderSplit_25m">25% / 75%</label>
+                      
+                      <input type="radio" name="nhanes_genderSplit" id="nhanes_genderSplit_0m" value="0"/>
+                      <label for="nhanes_genderSplit_0m">0% / 100%</label>
+                      
+                      
+             </fieldset>
+             
+    </div>
+
+            <div style="text-align:center; margin-top:10px; padding:5px;">
+            
+            
+            <div class="ui-grid-b">
+            <div class="ui-block-a" style="padding:10px;">Mass
+            <label for="nhanes_slider_mass" class="ui-hidden-accessible">Percentile</label>
+            <input type="range" name="nhanes_slider_mass" id="nhanes_slider_mass" value="0" min="1" max="99" />
+            <p id="nhanes_output_mass" style="font-weight:bold;"></p>
+			<img id="nhanes_histogram_mass" src="./images/nhanes/default.png" style="width:100%" alt="histrogram for mass and given gender split">
+            </div>
+            
+            <div class="ui-block-b" style="padding:10px;">Stature
+            <label for="nhanes_slider_stature" class="ui-hidden-accessible">Percentile</label>
+            <input type="range" name="nhanes_slider_stature" id="nhanes_slider_stature" value="0" min="1" max="99" />
+            <p id="nhanes_output_stature" style="font-weight:bold;"></p>
+			<img id="nhanes_histogram_stature" src="./images/nhanes/default.png" style="width:100%" alt="histrogram for stature and given gender split">
+            </div>
+            
+            <div class="ui-block-c" style="padding:10px;">BMI
+            <label for="nhanes_slider_bmi" class="ui-hidden-accessible">Percentile</label>
+            <input type="range" name="nhanes_slider_bmi" id="nhanes_slider_bmi" value="0" min="1" max="99" />
+            <p id="nhanes_output_bmi" style="font-weight:bold;"></p>
+			<img id="nhanes_histogram_bmi" src="./images/nhanes/default.png" style="width:100%" alt="histrogram for BMI and given gender split">
+            </div>
+            
+            </div>
+            
+            
+            </div>	
+
+			<h3 class="ui-bar ui-bar-a">Background</h3>
+			<div class="ui-body">
+			<p>The focus of the three National Health Examination Surveys (NHES) was the civilian population of the United States from 1959 to 1970. NHES was succeeded in 1971 by the National Health and Nutrition Examination Survey (NHANES) run by the Centers for Disease Control and Prevention (CDC). NHANES I, II, and III were compiled in the years 1971-1975, 1976-1980, and 1988-1994, respectively. Of late (1999-2006), NHANES databases have been compiled every two years in order to avoid temporal errors in anthropometric analyses. However, they are not comprehensive, and are characterized by a dearth of anthropometry in addition to stature and BMI.</p>
+			<p>This calculator allows you to enter a desired gender split (expressed as a percentage of males / females in the population) and percentile; the stature, mass, or BMI are returned for the given gender split and percentile. A histogram of the measures is also provided.</p>
+			<p>The NHANES data are available for download directly from the CDC.</p>
+			</div>
+
+          </div>
+          
+          
+          
+          </div>
+          
+ 
+
+      
+  </body>
+</html>

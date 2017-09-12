@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Multivariate Accommodation Calculator: Open Design Lab</title>
+   <meta name="viewport" content="width=device-width, initial-scale=1">	  
+
+	  <link rel="apple-touch-icon" href="./apple-touch-icon.png"/>
+	<meta charset="utf-8">
+
+<link rel="stylesheet" href="./css/themes/openlab_tools_v1.css" />
+  <link rel="stylesheet" href="./css/themes/jquery.mobile.icons.min.css" />
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile.structure-1.4.2.min.css" /> 
+  <link rel="stylesheet" href="./css/style.css">
+
+  <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script> 
+  <script src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
+ 
+  
+<script type="text/javascript" src="build_data.js">
+/* This script loads the data. Run build_data.php if the SQLite database is updated! */
+</script>
+
+<script type="text/javascript" src="./stats.js"></script>
+
+<script type="text/javascript">
+
+Array.prototype.sum = function() {
+		// An array Method that will SUM the elements of an array		
+
+		  
+		  return (! this.length) ? 0 : this.slice(1).sum() +
+			  ((typeof this[0] == 'number') ? this[0] : 0);
+		
+			};
+
+function buildPop(	measures, width ) {
+				// Take the raw population data and parse into a population
+
+			
+			this.anthro = measures;		// add the anthropometry
+			var temp = new Array();
+			for (loopI=0;loopI<width;loopI++) { 
+				temp[loopI]=ACCOM;		// accommodated by default
+			} 
+			
+			this.inRange = temp;		// initializes to "in range"
+		}
+
+function inOrOut( population, measure, cutoffMin, cutoffMax ) {
+		
+				// determine if a particular measure is within the cutoff range or not
+
+
+			for (loopI=0;loopI<popSize;loopI++) { 
+				if ( ( population[measure].anthro[loopI] <= cutoffMax ) &
+					 ( population[measure].anthro[loopI] >= cutoffMin ) ) {
+					population[measure].inRange[loopI] = ACCOM;		// within range
+				} else {
+					population[measure].inRange[loopI] = DISACCOM;		// out of range
+				}
+			}
+		}
+		
+function buildPlotData( population, xMeasure, yMeasure ) {
+		
+		// Parse the population data to prepare for plotting
+		// xIndex and yIndex are the indices for values for x and y axes
+		
+			var tempIn = new Array();
+			var tempOut = new Array();
+			tempInIndex = 0;
+			tempOutIndex = 0;
+			
+
+
+			for (loopI=0;loopI<popSize;loopI++) { 
+			
+				accom_sum=0; //0 is accommodated
+				for (i=0;i<totalDims;i++) { 
+					accom_sum = accom_sum+population[measures[i]].inRange[loopI];
+				}
+				if (accom_sum==0) { //if sum of all measures is 0, they're accommodated on all
+					tempIn[tempInIndex++] = [ population[xMeasure].anthro[loopI], population[yMeasure].anthro[loopI] ];
+				} else {
+					tempOut[tempOutIndex++] = [ population[xMeasure].anthro[loopI], population[yMeasure].anthro[loopI] ];
+				}
+				
+			}
+			
+			populationIn = tempIn;		// Accommodated individuals (within range)
+			populationOut = tempOut;	// Disaccommodated individuals
+			
+			var percentage = (populationIn.length)*100/popSize;
+			
+			$('#totals').html(percentage.toFixed(1) +"%");
+			
+			accom_tracker = new Array(0, 0, 0, 0);
+			
+			for (loop1=0; loop1<popSize;loop1++) {
+				for (loop2=0;loop2<totalDims;loop2++) {
+					if (population[measures[loop2]].inRange[loop1] == ACCOM){
+						accom_tracker[loop2] = accom_tracker[loop2] + 1;
+					}
+				}
+			}
+			
+
+			
+			$('#accom_x').html((accom_tracker[0]*100/popSize).toFixed(1) + "%");
+			$('#accom_y').html((accom_tracker[1]*100/popSize).toFixed(1) + "%");
+			
+			if (totalDims>2){
+				$('#accom_z').html((accom_tracker[2]*100/popSize).toFixed(1) + "%"); }
+			if (totalDims>3){
+				$('#accom_q').html((accom_tracker[3]*100/popSize).toFixed(1) + "%"); }
+
+		
+			
+				
+		}
+
+function dimSwitch(dimName){
+
+	
+		if (selectedDims[dimName]==false || selectedDims[dimName]=="undefined" || selectedDims[dimName]==null){
+				if (totalDims >= 4){
+					alert('You may select a maximum of 4 dimensions. Please remove a dimension to select another.');
+					$("#"+dimName).prop("checked",false).checkboxradio("refresh");				
+					
+				}else{
+					selectedDims[dimName] = true;
+					totalDims = totalDims + 1;
+				}
+		} else if(totalDims<=2){
+					alert('You may select a minimum of 2 dimensions. Please add a dimension to remove one.');
+					$("#"+dimName).prop("checked",true).checkboxradio("refresh");	
+		}else{
+			selectedDims[dimName] = false;
+			totalDims = totalDims - 1;
+		}
+		
+		count = 0;
+		measures = new Array('','','','');
+		measure1="";
+		measure2="";
+		measure3="";
+		measure4="";
+		
+		for (var key in selectedDims) {
+			if (selectedDims[key]==true) {
+				measures[count] = key;
+				count++;
+			}
+		}
+		
+		
+		// CONVERT TO EXPLICIT FORMAT TOO (EASIER IN SPOTS)
+		
+		if (measures.length>0){
+			measure1 = measures[0]; measure2="";measure3="";measure4="";
+		}
+		if (measures.length>1){
+			measure2 = measures[1];measure3="";measure4="";
+		}
+		if (measures.length>2){
+			measure3 = measures[2];measure4="";
+		}
+		if (measures.length>3)
+			measure4 = measures[3];
+		
+		xMeasure = measure1;
+		yMeasure = measure2;
+}
+
+function plot() {
+  
+	
+	chart.series[0].setData(populationOut);
+	chart.series[1].setData(populationIn);
+	
+	chart.xAxis[0].axisTitle.attr({
+			text: fullName[xMeasure] +' ' +units[xMeasure],
+								  });
+	chart.yAxis[0].axisTitle.attr({
+			text: fullName[yMeasure] +'<br> ' +units[yMeasure],
+								  });
+	
+	/* to put breaks in place of spaces: fullName[yMeasure].replace(" ","<br>") */
+
+	
+}
+
+function plotAxis(){
+	
+	buildPlotData( population, xMeasure, yMeasure );
+	plot();
+}
+
+function initSliders(measure1,measure2,measure3,measure4,totalDims){
+	
+	all_sliders_html = '';
+	
+	
+	// x slider
+	var tempmin = Math.round(mean(rawData[measure1])-3*stdev(rawData[measure1],1));
+	var tempmax = Math.round(mean(rawData[measure1])+3*stdev(rawData[measure1],1));
+	all_sliders_html += '<div data-role="rangeslider" id="xRange">';
+	all_sliders_html += '<label for="xRange-min" style="margin-bottom:-10px"><span id="xLabel">'+fullName[measure1]+'</span> &nbsp;<span id="accom_x" style="color:red; font-size:20px;">100%</span></label>';
+	all_sliders_html += '<input type="range" name="xRange-min" id="xRange-min" value="'+tempmin+'" min="'+tempmin+'" max="'+tempmax+'"/>';
+	all_sliders_html += '<input type="range" name="xRange-max" id="xRange-max" value="'+tempmax+'" min="'+tempmin+'" max="'+tempmax+'"	 />';
+	all_sliders_html += '</div>';
+	all_sliders_html += '<div style="width:150px; margin:auto; margin-top:-10px; margin-bottom:20px;"><label ><input type="checkbox" name="symmetry1" id="symmetry1" data-mini="true">Symmetry</label></div>';
+	
+	// y slider
+	var tempmin = Math.round(mean(rawData[measure2])-3*stdev(rawData[measure2],1));
+	var tempmax = Math.round(mean(rawData[measure2])+3*stdev(rawData[measure2],1));
+	all_sliders_html += '<div data-role="rangeslider" id="yRange">';
+	all_sliders_html += '<label for="yRange-min" style="margin-bottom:-10px"><span id="yLabel">'+fullName[measure2]+'</span> &nbsp;<span id="accom_y" style="color:red; font-size:20px;">100%</span></label>';
+	all_sliders_html += '<input type="range" name="yRange-min" id="yRange-min" value="'+tempmin+'" min="'+tempmin+'" max="'+tempmax+'" />';
+	all_sliders_html += '<input type="range" name="yRange-max" id="yRange-max" value="'+tempmax+'" min="'+tempmin+'" max="'+tempmax+'" />';
+	all_sliders_html += '</div>';	 
+	all_sliders_html += '<div style="width:150px; margin:auto; margin-top:-10px; margin-bottom:20px;"><label ><input type="checkbox" name="symmetry2" id="symmetry2" data-mini="true">Symmetry</label></div>';
+			 
+				 
+	// z slider
+	if ((measure3!=null)&&(measure3!='')){
+		var tempmin = Math.round(mean(rawData[measure3])-3*stdev(rawData[measure3],1));
+		var tempmax = Math.round(mean(rawData[measure3])+3*stdev(rawData[measure3],1));
+		all_sliders_html += '<div data-role="rangeslider" id="zRange">';
+		all_sliders_html += '<label for="zRange-min" style="margin-bottom:-10px"><span id="zLabel">'+fullName[measure3]+'</span> &nbsp;<span id="accom_z" style="color:red; font-size:20px;">100%</span></label>';
+		all_sliders_html += '<input type="range" name="zRange-min" id="zRange-min" value="'+tempmin+'" min="'+tempmin+'" max="'+tempmax+'" />';
+		all_sliders_html += '<input type="range" name="zRange-max" id="zRange-max" value="'+tempmax+'" min="'+tempmin+'" max="'+tempmax+'" />';
+		all_sliders_html += '</div>'; 
+		all_sliders_html += '<div style="width:150px; margin:auto; margin-top:-10px; margin-bottom:20px;"><label ><input type="checkbox" name="symmetry3" id="symmetry3" data-mini="true">Symmetry</label></div>';
+	   
+	}
+	
+	// q slider
+	if ((measure4!=null)&&(measure4!='')){
+		var tempmin = Math.round(mean(rawData[measure4])-3*stdev(rawData[measure4],1));
+		var tempmax = Math.round(mean(rawData[measure4])+3*stdev(rawData[measure4],1));
+		all_sliders_html += '<div data-role="rangeslider" id="qRange">';
+		all_sliders_html += '<label for="qRange-min" style="margin-bottom:-10px"><span id="qLabel">'+fullName[measure4]+'</span> &nbsp;<span id="accom_q" style="color:red; font-size:20px;">100%</span></label>';
+		all_sliders_html += '<input type="range" name="qRange-min" id="qRange-min" value="'+tempmin+'" min="'+tempmin+'" max="'+tempmax+'"	/>';
+		all_sliders_html += '<input type="range" name="qRange-max" id="qRange-max" value="'+tempmax+'" min="'+tempmin+'" max="'+tempmax+'"	/>';
+		all_sliders_html += '</div>';  
+		all_sliders_html += '<div style="width:150px; margin:auto; margin-top:-10px; margin-bottom:20px;"><label ><input type="checkbox" name="symmetry4" id="symmetry4" data-mini="true">Symmetry</label></div>';
+	  
+	}
+	
+	
+	$('#sliders').html(all_sliders_html).trigger('create');
+	
+}
+
+function switchPlot(axisDim){
+	
+	if (axisDim=="x"){
+		var dimension=document.getElementById('xAxisDim').selectedIndex;
+		xMeasure = document.getElementsByTagName("option")[dimension].value;
+		return xMeasure;
+	}else{
+		var dimension=document.getElementById('yAxisDim').selectedIndex;
+		yMeasure = document.getElementsByTagName("option")[dimension].value;
+		return yMeasure;
+	}
+
+}
+
+$(document).on('pageinit','#pageView',function(event){
+
+rawData = rawData_M; // men by default
+popSize = rawData['BMI'].length;
+selectedDims = new Array();
+measures = new Array('STATURE','BMI');
+measure1='STATURE';
+xMeasure = 'STATURE';
+measure2='BMI';
+yMeasure = 'BMI';
+measure3='';
+measure4='';
+totalDims = 2;
+selectedDims['STATURE'] = true;
+selectedDims['BMI'] = true;
+
+if(measure1 == "BMI" || measure1 == "Mass")
+{
+	step1 = .01;
+}
+if(measure2 == "BMI" || measure2 == "Mass")
+{
+	step2 = .01;
+}
+if(measure3 == "BMI" || measure3 == "Mass")
+{
+	step3 = .01;
+} 
+if(measure4 == "BMI" || measure4 == "Mass")
+{
+	step4 = .01;
+}
+ACCOM = 0;
+DISACCOM = 1;
+
+// initialize the arrays used for plotting
+populationIn = new Array();
+populationOut = new Array();
+
+// build the population of individuals		
+population = new Array();
+		
+for (i=0;i<totalDims;i++) {
+	population[measures[i]] = new buildPop( rawData[measures[i]], popSize );
+}
+		
+// build the plot data
+buildPlotData( population, xMeasure, yMeasure );
+
+
+// build chart
+chart = new Highcharts.Chart({
+		chart: {
+					renderTo: 'graphspot', 
+					defaultSeriesType: 'scatter',
+					zoomType: '',
+					backgroundColor: '',
+					margin: [ 25, 40, 40, 70 ]
+				},
+				title: {
+					text: '',
+					style: {font: 'normal 16px helvetica, arial, sans-serif'}
+				},
+
+				xAxis: {
+					
+					title: {
+						enabled: true,
+						text: fullName[xMeasure] +' ' +units[xMeasure],
+						rotation: 0,
+						margin: 10
+					},
+					startOnTick: true,
+					endOnTick: true,
+					showLastLabel: true 
+				},
+				
+				yAxis: {
+					title: {
+						enabled: true,
+						text:  fullName[yMeasure] +'<br>' +units[yMeasure],
+						rotation: 270,
+						margin: 20
+					}
+				},	
+				legend: {
+					layout: 'vertical',
+					style: {
+						top: '5px',
+						bottom: 'auto'
+					},
+					backgroundColor: '#FFFFFF',
+					borderWidth: 1
+				},
+				tooltip: {
+					enabled: false
+				},
+				plotOptions: {
+					scatter: {
+						marker: {
+							radius: 2,
+							symbol: 'circle',
+							states: {
+								hover: {
+									enabled: false,
+									lineColor: 'rgb(100,100,100)'
+								}
+							}
+						},
+						states: {
+							hover: {
+								marker: {
+									enabled: false
+								}
+							}
+						}
+					}
+				},
+				series: [{
+					name: 'Disaccommodated',
+					color: 'rgba(255, 0, 0, .5)',
+					data: populationOut
+			
+				}, {
+					name: 'Accommodated',
+					color: 'rgba(34, 32, 95, .5)',
+					data: populationIn
+			
+				}]
+				
+			});		
+	
+plot();
+
+// SET SLIDER VALUES
+initSliders(measure1,measure2,null,null,2); 
+
+// LOAD DATA IN ANTHROPOMETRY PANE	
+// * note: see build_data.js for the data being processed here
+
+var numberOfEntries = abrevName.length;
+var whole_body_html = [];
+var head_html = [];
+var hands_arms_html = [];
+var torso_html = [];
+var feet_legs_html = [];
+
+
+for (i=1; i<numberOfEntries; i++){
+
+	if (category[abrevName[i]]=='1_whole_body') {
+		whole_body_html.push('<input type="checkbox" name="' + abrevName[i] + '" id="' + abrevName[i] + '" onChange="dimSwitch(\'' + abrevName[i] + '\');" />');
+		whole_body_html.push('<label for="' + abrevName[i] + '">' + fullName[abrevName[i]] + '</label>');
+	}
+	
+	if (category[abrevName[i]]=='2_head') {
+		head_html.push('<input type="checkbox" name="' + abrevName[i] + '" id="' + abrevName[i] + '"  onChange="dimSwitch(\'' + abrevName[i] + '\');" />');
+		head_html.push('<label for="' + abrevName[i] + '">' + fullName[abrevName[i]] + '</label>');
+	}
+	
+	if (category[abrevName[i]]=='3_hands_arms') {
+		hands_arms_html.push('<input type="checkbox" name="' + abrevName[i] + '" id="' + abrevName[i] + '"	onChange="dimSwitch(\'' + abrevName[i] + '\');" />');
+		hands_arms_html.push('<label for="' + abrevName[i] + '">' + fullName[abrevName[i]] + '</label>');
+	}
+	if (category[abrevName[i]]=='4_torso') {
+		torso_html.push('<input type="checkbox" name="' + abrevName[i] + '" id="' + abrevName[i] + '"  onChange="dimSwitch(\'' + abrevName[i] + '\');" />');
+		torso_html.push('<label for="' + abrevName[i] + '">' + fullName[abrevName[i]] + '</label>');
+	}
+	if (category[abrevName[i]]=='5_feet_legs') {
+		feet_legs_html.push('<input type="checkbox" name="' + abrevName[i] + '" id="' + abrevName[i] + '"  onChange="dimSwitch(\'' + abrevName[i] + '\');" />');
+		feet_legs_html.push('<label for="' + abrevName[i] + '">' + fullName[abrevName[i]] + '</label>');
+	}
+	
+} 
+
+
+
+$('#whole_body_fieldset').append(whole_body_html.join(''));
+$('#head_fieldset').append(head_html.join(''));
+$('#hands_arms_fieldset').append(hands_arms_html.join(''));
+$('#torso_fieldset').append(torso_html.join(''));
+$('#feet_legs_fieldset').append(feet_legs_html.join(''));
+
+$('#anthroPickerForm').trigger('create');
+
+
+});
+
+$(document).on('change','#xRange-min',function(){
+	
+	minVal = $('#xRange-min').val();
+	maxVal = $('#xRange-max').val();
+	meanVal = mean(rawData[measure1]);
+	minDev = mean(rawData[measure1])-minVal;
+	maxDev = maxVal-mean(rawData[measure1]);
+	
+	if (meanVal>300) {devCheck = 0.001; } else {devCheck = 0.01; }
+
+	if ($("#symmetry1").prop("checked") && (Math.abs(minDev-maxDev)/meanVal>devCheck)) {
+		$('#xRange-max').val(Math.round(meanVal+minDev)).slider('refresh');
+	}
+	
+	inOrOut(population,measure1,minVal,maxVal);
+	buildPlotData(population, xMeasure, yMeasure);
+});
+
+$(document).on('change','#xRange-max',function(){
+	
+	minVal = $('#xRange-min').val();
+	maxVal = $('#xRange-max').val();
+	meanVal = mean(rawData[measure1]);
+	minDev = mean(rawData[measure1])-minVal;
+	maxDev = maxVal-mean(rawData[measure1]);
+	
+	if (meanVal>300) {devCheck = 0.001; } else {devCheck = 0.01; }
+
+	if ($("#symmetry1").prop("checked") && (Math.abs(minDev-maxDev)/meanVal>devCheck)) {
+		$('#xRange-min').val(Math.round(meanVal-maxDev)).slider('refresh');
+	}
+	
+	inOrOut(population,measure1,minVal,maxVal);
+	buildPlotData(population, xMeasure, yMeasure);
+});
+
+$(document).on('change','#yRange-min',function(){
+	
+	minVal = $('#yRange-min').val();
+	maxVal = $('#yRange-max').val();
+	meanVal = mean(rawData[measure2]);
+	minDev = mean(rawData[measure2])-minVal;
+	maxDev = maxVal-mean(rawData[measure2]);
+	
+	if (meanVal>300) {devCheck = 0.001; } else {devCheck = 0.01; }
+
+	if ($("#symmetry2").prop("checked") && (Math.abs(minDev-maxDev)/meanVal>devCheck)) {
+		$('#yRange-max').val(Math.round(meanVal+minDev)).slider('refresh');
+	}
+	
+	inOrOut(population,measure2,minVal,maxVal);
+	buildPlotData(population, xMeasure, yMeasure);
+});
+
+$(document).on('change','#yRange-max',function(){
+	
+	minVal = $('#yRange-min').val();
+	maxVal = $('#yRange-max').val();
+	meanVal = mean(rawData[measure2]);
+	minDev = mean(rawData[measure2])-minVal;
+	maxDev = maxVal-mean(rawData[measure2]);
+	
+	if (meanVal>300) {devCheck = 0.001; } else {devCheck = 0.01; }
+
+	if ($("#symmetry2").prop("checked") && (Math.abs(minDev-maxDev)/meanVal>devCheck)) {
+		$('#yRange-min').val(Math.round(meanVal-maxDev)).slider('refresh');
+	}
+	
+	inOrOut(population,measure2,minVal,maxVal);
+	buildPlotData(population, xMeasure, yMeasure);
+});
+
+$(document).on('change','#zRange-min',function(){
+	
+	minVal = $('#zRange-min').val();
+	maxVal = $('#zRange-max').val();
+	meanVal = mean(rawData[measure3]);
+	minDev = mean(rawData[measure3])-minVal;
+	maxDev = maxVal-mean(rawData[measure3]);
+	
+	if (meanVal>300) {devCheck = 0.001; } else {devCheck = 0.01; }
+
+	if ($("#symmetry3").prop("checked") && (Math.abs(minDev-maxDev)/meanVal>devCheck)) {
+		$('#zRange-max').val(Math.round(meanVal+minDev)).slider('refresh');
+	}
+	
+	inOrOut(population,measure3,minVal,maxVal);
+	buildPlotData(population, xMeasure, yMeasure);
+});
+
+$(document).on('change','#zRange-max',function(){
+	
+	minVal = $('#zRange-min').val();
+	maxVal = $('#zRange-max').val();
+	meanVal = mean(rawData[measure3]);
+	minDev = mean(rawData[measure3])-minVal;
+	maxDev = maxVal-mean(rawData[measure3]);
+	
+	if (meanVal>300) {devCheck = 0.001; } else {devCheck = 0.01; }
+
+	if ($("#symmetry3").prop("checked") && (Math.abs(minDev-maxDev)/meanVal>devCheck)) {
+		$('#zRange-min').val(Math.round(meanVal-maxDev)).slider('refresh');
+	}
+	
+	inOrOut(population,measure3,minVal,maxVal);
+	buildPlotData(population, xMeasure, yMeasure);
+});
+
+$(document).on('change','#qRange-min',function(){
+	
+	minVal = $('#qRange-min').val();
+	maxVal = $('#qRange-max').val();
+	meanVal = mean(rawData[measure4]);
+	minDev = mean(rawData[measure4])-minVal;
+	maxDev = maxVal-mean(rawData[measure4]);
+	
+	if (meanVal>300) {devCheck = 0.001; } else {devCheck = 0.01; }
+
+	if ($("#symmetry4").prop("checked") && (Math.abs(minDev-maxDev)/meanVal>devCheck)) {
+		$('#qRange-max').val(Math.round(meanVal+minDev)).slider('refresh');
+	}
+	
+	inOrOut(population,measure4,minVal,maxVal);
+	buildPlotData(population, xMeasure, yMeasure);
+});
+
+$(document).on('change','#qRange-max',function(){
+	
+	minVal = $('#qRange-min').val();
+	maxVal = $('#qRange-max').val();
+	meanVal = mean(rawData[measure4]);
+	minDev = mean(rawData[measure4])-minVal;
+	maxDev = maxVal-mean(rawData[measure4]);
+	
+	if (meanVal>300) {devCheck = 0.001; } else {devCheck = 0.01; }
+
+	if ($("#symmetry4").prop("checked") && (Math.abs(minDev-maxDev)/meanVal>devCheck)) {
+		$('#qRange-min').val(Math.round(meanVal-maxDev)).slider('refresh');
+	}
+	
+	inOrOut(population,measure4,minVal,maxVal);
+	buildPlotData(population, xMeasure, yMeasure);
+});
+
+$(document).on('change','#anthroPickerForm',function(event) {
+
+	refreshMvData();
+	
+
+});
+
+$(document).on('change','input[name="mvGender"]',function(event) {
+	if ($('#mvGender_F').prop("checked")){
+		rawData = rawData_F;
+		refreshMvData();
+	} else {
+		rawData = rawData_M;
+		refreshMvData();
+	}	
+		
+});
+ 
+$( document ).on( "popupafterclose", "#mvGraphSettings",function( e ) {
+	buildPlotData(population, xMeasure, yMeasure);
+	plot();
+	});
+
+function refreshMvData(){
+	for (i=0;i<totalDims;i++) {
+			population[measures[i]] = new buildPop( rawData[measures[i]], popSize );
+	}	
+		
+	initSliders(measure1,measure2,measure3,measure4,totalDims);
+	
+	buildPlotData(population, xMeasure, yMeasure);
+	
+	// add measures to graph options
+	var xDim=document.getElementById('xAxisDim');
+	var yDim=document.getElementById('yAxisDim');
+	for (i=0;i<totalDims;i++){
+		var newOption=document.createElement('option');
+		xDim.options[i].value = measures[i];
+		xDim.options[i].text = fullName[measures[i]];
+		yDim.options[i].value = measures[i];
+		yDim.options[i].text = fullName[measures[i]];
+	 }
+	 
+	 
+	 
+}
+
+
+</script>
+  
+		
+  </head>
+  <body onLoad="" style="margin:0; padding: 0; width: 100%;">
+  
+<div data-role="page" id="pageView" data-theme="a"> 
+	 
+	  
+<script type="text/javascript" src="./Highcharts_2/js/highcharts.js"></script>	 
+
+
+<div data-role="header" > 
+			<div class="ui-bar" style="padding:0;">
+				<div id="headerLogoBlock"><a href="http://www.openlab.psu.edu/" target="_blank"><img src="./images/logo_tiny.png" border=0 style="height: 35px; margin-top:5px;"></a></div>
+				<div id="headerTitleBlock"><h1>Multivariate Accommodation Calculator</h1></div>
+				<div id="headerLinkBlock"><a href="http://www.openlab.psu.edu/" style="color:white" target="_blank">openlab.psu.edu</a></div>
+			</div>
+</div>
+			
+		  <div data-role="content">
+		  
+		  <div class="ui-grid-a">
+		  
+			<div class="ui-block-a" style="width: 20%;">
+			
+			<p><i>You may select between 2 to 4 dimensions for analysis.</i></p>
+
+		  
+				<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+					<legend style="font-size:14px; font-weight:bold; float:left; margin-right:20px">Gender</legend>
+					<input type="radio" name="mvGender" id="mvGender_M" checked="checked">
+					<label for="mvGender_M">Male</label>
+					<input type="radio" name="mvGender" id="mvGender_F">
+					<label for="mvGender_F">Female</label>
+				</fieldset>
+	
+
+  
+
+
+				<form name="anthroPickerForm" id="anthroPickerForm" style="margin-top:20px">
+
+				<fieldset data-role="controlgroup" data-mini="true">
+					<input type="checkbox" name="STATURE" id="STATURE" checked="checked"  onChange="dimSwitch('STATURE');" />
+					<label for="STATURE">Stature</label>
+					<input type="checkbox" name="BMI" id="BMI" checked="checked"  onChange="dimSwitch('BMI');" />
+					<label for="BMI">BMI</label>
+				</fieldset>
+	
+	
+				<div data-role="collapsible" data-mini="true"><h3>Whole body &amp; functional measures</h3>
+					<fieldset data-role="controlgroup" id="whole_body_fieldset" data-mini="true">
+
+					</fieldset>
+				</div>
+	
+				<div data-role="collapsible" data-mini="true"><h3>Head measures</h3>
+					<fieldset data-role="controlgroup" id="head_fieldset" data-mini="true">
+
+					</fieldset>
+				</div>
+	
+				<div data-role="collapsible" data-mini="true"><h3>Hand and arm measures</h3>
+					<fieldset data-role="controlgroup" id="hands_arms_fieldset" data-mini="true">
+
+					</fieldset>
+				</div>
+
+				<div data-role="collapsible" data-mini="true"><h3>Torso measures</h3>
+					 <fieldset data-role="controlgroup" id="torso_fieldset" data-mini="true">
+
+					</fieldset>
+				</div>
+	
+		
+				<div data-role="collapsible" data-mini="true"><h3>Foot and leg measures</h3>
+					<fieldset data-role="controlgroup" id="feet_legs_fieldset" data-mini="true"> 
+
+					</fieldset>
+				</div>
+	
+
+				</form>
+		  
+			
+			</div>
+			<div class="ui-block-b" style="width:80%;">
+
+		   
+					<div id = "graphspot" style="width:100%; height: 300px; margin: 0 0 0 0px;"></div> 
+
+
+
+
+					<br style="clear:both">
+	  
+
+
+			  
+				<p style="text-align:center; color:red; font-style:bold; font-size:18px;">
+
+					Total Accommodation:  <span id="totals" style="font-size:22px">100%</span>					 
+					 <a href="#" data-role="button" data-inline="true" onClick="plot();" data-mini="true">Update Graph</a>
+					<a href="#mvGraphSettings" data-rel="popup" data-role="button" data-inline="true" data-mini="true" data-icon="gear">Graph Settings</a>
+
+
+				 </p>
+				 
+			  <div style="margin: 0 auto; width:90%" id="sliders">
+				 
+				 </div>
+   
+			  
+			  
+		  </div>
+		  </div>
+		  
+		 
+	  
+	  
+
+<div data-role="popup" id="mvGraphSettings" style="width:300px; " class="ui-corner-all"> 
+	 <div data-role="header" class="ui-corner-top">
+				<h1>Graph Settings</h1>
+	<a href="#" data-rel="back" data-role="button" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+			</div>
+
+	 <div data-role="content">
+	 <p><i>Select dimensions to plot on the x and y axes.</i></p>
+<div data-role="fieldcontain" style="font-size:14px">
+   <label for="xAxisDim" class="select">X Axis</label>
+   <select name="xAxisDim" id="xAxisDim" onChange="xMeasure=switchPlot('x');" data-mini="true" data-native-menu="false">
+	<option value="STATURE" selected>Stature</option>
+	<option value="BMI">BMI</option>
+	<option></option>
+	<option></option>
+   </select>
+   <label for="yAxisDim" class="select" style="margin-top:10px">Y Axis</label>
+   <select name="yAxisDim" id="yAxisDim" onChange="yMeasure=switchPlot('y');" data-mini="true" >
+	<option value="STATURE">Stature</option>
+	<option value="BMI" selected>BMI</option>
+		<option></option>
+		<option></option>
+   </select>
+</div>
+
+</div>
+
+</div>
+	
+<h3 class="ui-bar ui-bar-a">Background</h3>
+			<div class="ui-body">
+<p>Designing for multiple body dimensions simultaneously presents one of the more difficult challenges when configuring products and environments for people. Traditional design tools have been principally univariate, displaying values for a single dimension in a tabular format. When multiple dimensions are combined, the percentage of the population accommodated by the limits on all the dimensions is not the same as the percentage of the population accommodated by the limits on a single dimension. </p>
+<p>This calculator permits the user to interact with many-dimensional data in real-time. Sliders allow the specification of the acceptable limits of anthropometry on up to four dimensions, and the user may plot any of these four measures on the graph. Overall accommodation (on all measures) is displayed with the limits specified by the sliders in effect. The body dimension data comes from the 1988 ANSUR military survey.</p>
+</div>
+</h3>
+
+
+</div>
+   
+
+
+	  
+</div>
+	 
+
+	  
+  </body>
+</html>

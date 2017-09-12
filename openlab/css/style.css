@@ -1,0 +1,162 @@
+#pageView {
+	/*min-width:700px; */
+}
+
+#headerLogoBlock {
+	width:18%;
+	float:left;
+	padding:0 0 0 10px;
+ }
+ 
+#headerTitleBlock {
+  width:60%;
+  float:left; 
+  text-align:center;
+  padding-top:10px;
+  font-size:20px;
+}
+
+#headerLinkBlock {
+ 	width:18%;
+ 	float:right; 
+ 	text-align:right; 
+ 	padding-top:10px; 
+ 	padding-right:10px;
+ }
+ 
+ a.bodySegmentLink:link, a.bodySegmentLink:visited, a.bodySegmentLink:hover, a.bodySegmentLink:active { text-decoration: underline; font-weight:bold; color: #000 };
+
+.anthro_popup{
+	border: solid 2px black !important;
+}
+
+.sliderContainer{
+	float:left;
+	width:100%;
+}
+
+.outputBlock{
+	text-align: center;
+	width:100%;
+}
+
+.outputImage img{
+	float:left;
+	max-width:30%;
+	max-height:200px;
+}
+
+.pdfPlaceholder{
+	float:left;
+	width: 70%;
+	height:200px;
+	line-height: 1.2em;
+	margin:auto;
+	margin-bottom:20px;
+}
+
+.pdfSliderContainer{
+	clear:both;
+	width:100%;
+	margin: auto;
+}
+
+@media all and (min-width: 60em){
+	.sliderContainer{
+		margin-left:15px;
+		width:47%;
+	}
+	
+	.outputBlock{
+		float: left;
+		width: 48%;
+		margin:5px;
+	}
+}
+
+#resultLoading{
+		width:100%;
+		height:100%;
+		position:fixed;
+		z-index:10000000;
+		top:0;,
+		left:0;
+		right:0;
+		bottom:0;
+		margin:auto;
+	}
+
+#resultLoading .bg {
+		background:none;
+		opacity:0.7;
+		width:100%;
+		height:100%;
+		position:absolute;
+		top:0;
+	}
+
+#resultLoading>div:first{
+		width: 250px;
+		height:75px;
+		text-align: center;
+		position: fixed;
+		top:0;
+		left:0;
+		right:0;
+		bottom:0;
+		margin:auto;
+		font-size:24px;
+		z-index:10;
+		color:black;
+		font-weight:bold;
+}
+
+#resultLoading{
+		width:100%;
+		height:100%;
+		position:fixed;
+		z-index:10000000;
+		top:0;
+		left:0;
+		right:0;
+		bottom:0;
+		margin:auto;
+}
+
+#resultLoading .bg{
+		background:none;
+		opacity:0.7;
+		width:100%;
+		height:100%;
+		position:absolute;
+		top:0;
+}
+
+#resultLoadingContent{
+		background:white;
+		border: solid 1px #CCC;
+		-moz-border-radius: 15px;
+		border-radius: 15px;
+		padding:10px;
+		width: 250px;
+		height:75px;
+		text-align: center;
+		position: fixed;
+		top:0;
+		left:0;
+		right:0;
+		bottom:0;
+		margin:auto;
+		font-size:24px;
+		z-index:10;
+		color:black;
+		font-weight:bold;
+
+}
+
+#manikinOutput{
+	width:90%;
+	margin: auto;
+	margin-top:10px;
+	margin-bottom:10px;
+}

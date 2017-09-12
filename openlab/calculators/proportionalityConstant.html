@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Open Design Lab Tools: Proportionality Constant Calculator</title>
+<link href="CSSDesignFolder/proportionalityConstant.css" rel="stylesheet" type="text/css" />
+<script language="javascript" type="text/javascript" media="screen" src="proportionalityConstant.js"> 
+</script>
+<style type="text/css">
+body {
+	font-family: 'Lucida Grande','Lucida Sans Unicode', arial, helvetica, sans-serif;
+	margin: 0; /* it's good practice to zero the margin and padding of the body element to account for differing browser defaults */
+	padding: 0;
+	text-align: center; /* this centers the container in IE 5* browsers. The text is then set to the left aligned default in the #container selector */
+	color: #000000;
+}
+
+#firstHeader
+{
+width:100%;
+height:80px;
+margin: 0; /* it's good practice to zero the margin and padding of the body element to account for differing browser defaults */
+padding-top:0px;
+padding-bottom:0px;
+text-align: center; /* this centers the container in IE 5* browsers. The text is then set to the left aligned default in the #container selector */
+color: white;
+background-color:#000033;
+margin-bottom:10px;
+}
+
+#secondHeader
+{
+width: 75%;
+margin: 0 auto; /* the auto margins (in conjunction with a width) center the page */
+text-align:center;
+}
+
+#header
+{
+width:97.8%;
+height:50px;
+padding-left:20px;
+padding-top:20px;
+padding-bottom:20px;
+position:relative;
+}
+
+#OpenDesignLab
+{
+	font-family:"Courier New", Courier, monospace;
+	position:absolute;
+	width:169px;
+	color:#FFFFFF;
+	font-size:13px;
+	left: 239px;
+	top: 33px;
+}
+
+
+.secondTable
+{
+border:none;
+height:358px;
+font-size:9px;
+background-image:url(designToolsPicture/FinalHumanStructure.gif);
+position:relative;
+padding:0;
+margin:0;
+ background-repeat:no-repeat; 
+display:block; 
+border:none;
+}
+#fistTable
+{
+border:none;
+}
+.overFlowHidden
+{
+overflow:hidden;
+width:32px;
+text-align:center;
+}
+</style>
+
+
+</head>
+
+<body  class="oneColLiqCtr" onload="changeCase()">
+<div id="firstHeader"><div id="secondHeader"><a href="http://www.openlab.psu.edu/"><img src="../../images/openlablogo_sm.png" style="vertical-align:middle" border=0></a>
+<span>Design Tools: Proportionality Constant Calculator</span>
+</div></div>	
+    <div id="mainContainer"> <!--Container that Object-container is going to be centered in-->
+		<div id="container"> <!--Object Container-->
+			<div id="containerLeft"> <!--Container floated to the left that contains form-->
+
+                <table border="0" id="FirstTable" width="auto">
+                <thead id="test">
+                <tr id="firstRow">
+                    
+                        <td class="cellProperties"><form id="Selector" name="selector" ><select name="statureOrParameter" id="StatureOrParameter" onchange="changeCase()"  >
+                        <option value="stature">stature</option><option value="Population Parameter">Population Parameter</option></select></form></td>
+                        <td colspan="2" id="push"></td>
+                  
+                </tr>
+                </thead>
+                  
+                <tr id="secondRow">
+                    
+                        <td id="secondRowFirstColumn" class="cellProperties">Insert Size(mm/inch):</td>
+                        <td class="cellProperties" id="secondRowSecondColumn"><form id="Selector2" name="selector2"><span><input name="inches" type="checkbox" value"inches" onclick="InchesOrMM()"  />inches</span><span>							<input name="mm" type="checkbox" value="mm" />mm</span></form>					                        
+                        </td>
+                        <td id="secondRowThirdColumn" class="cellProperties"><form><input name="size" type="text" style="width:70px;" /></form></td>
+                        
+                </tr>
+                </table>
+
+    		</div> <!--End of ContainerLeft-->
+    
+    		<div id="containerRight"><!--container that contains skeleton representation of man-->
+			  <div class="secondTable">
+<div style="position:absolute; top: 140px; left: -5px;" id="height" class="overFlowHidden">123</div>
+<div style="position:absolute; left: 18px; top: 178px;" id="shoudlerHeight"class="overFlowHidden" >123</div>
+<div style="position:absolute; left: 39px; top: 217px;" id="elbowHeight" class="overFlowHidden">123</div>
+<div style="position:absolute; left: 58px; top: 256px;" id="wristHeight" class="overFlowHidden" >123</div>
+<div style="position:absolute; left: 78px; top: 291px;" id="FingerHeight" class="overFlowHidden">123</div>
+<div style="position:absolute; left: 134px; top: 71px;" id="chestWidth" class="overFlowHidden">123</div>
+<div style="position:absolute; left: 215px; top: 91px;" id="upperArm" class="overFlowHidden">123</div>
+<div style="position:absolute; left: 240px; top: 141px;" id="lowerArm" class="overFlowHidden">123</div>
+<div style="position:absolute; left: 257px; top: 181px;" id="wrist" class="overFlowHidden">123</div>
+<div style="position:absolute; left: 136px; top: 183px;" id="widthHip" class="overFlowHidden" >123</div>
+<div style="position:absolute; left: 212px; top: 218px;" id="hipHeight" class="overFlowHidden">123</div>
+<div style="position:absolute; left: 192px; top: 295px;" id="kneeHeight" class="overFlowHidden">123</div>
+<div style="position:absolute; left: 148px; top: 346px;" id="footHeight" class="overFlowHidden">123</div>
+</div>
+
+            
+			<br class="clearfloat" />
+		</div><!--End of object Container-->
+	</div> <!--End of main Container-->
+ </div>   
+ 
+ <script type="text/javascript"> var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www."); document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E")); </script> <script type="text/javascript"> try { var pageTracker = _gat._getTracker("UA-526007-4"); pageTracker._trackPageview(); } catch(err) {}</script>
+</body>
+</html>

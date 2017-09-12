@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Open Design Lab Tools: Boundary Ratio Calculator</title>
+<script language="javascript" type="text/javascript" media="screen" src="boundaryRatio1.js"> 
+</script>
+<script language="javascript" type="text/javascript" media="screen" src="boundaryRatio.js"> 
+</script>
+
+<link href="CSSDesignFolder/boundaryRatio.css" rel="stylesheet" type="text/css" />
+</style>
+</head>
+
+<body class="oneColLiqCtr" onload="changeCase(),SwitchParameter()">
+<div id="firstHeader"><div id="secondHeader"><a href="http://www.openlab.psu.edu/"><img src="../../images/openlablogo_sm.png" style="vertical-align:middle" border=0></a>
+<span>Design Tools: Boundary Ratio Calculator</span>
+</div></div>
+<div id="container">
+  <div id="tableContainer">
+   <div id="getLowerPounds" style="visibility:hidden; overflow:hidden; height:1px;"></div>
+     <div id="getUpperPounds" style="visibility:hidden; overflow:hidden; height:1px;"></div>
+   	<table>
+<tr><td id="Options"><form id="Selector" name="selector" ><select name="statureOrParameter" id="StatureOrParameter" onchange="SwitchParameter()"  >
+                        <option value="stature">stature</option><option value="Ansur">ANSUR</option><option value="Nhanes">NHANES</option></select></form></td>
+<td id="BoundaryRatios" ></td><td id="relocateInchesOrMM"></td><td id="newRace"></td></tr>
+<tr><td></td><td></td></tr>
+</table>
+  </div>
+
+<div id="tableContainer1">
+	<form id="Selector2" name="selector2">
+	<table style="visibility:hidden">
+   
+   <tr><td><select name="maleOrFemale" onchange="checkStatus()"><option>Male</option><option>Female</option></select></td><td colspan="2"><select name="inchesOrMM" onchange="convertToMM(), Conversion()"><option>inches/lbs</option><option>MM/kg</option></select></td><td colspan="2">Percentile</td></tr>
+  <tr><td><span class="rightPadding"></span></td><td><span class="rightPadding"><input name="inches" type="text" size="4" value="inches" onclick="clearInput('inches')" onblur="insertValue('inches')"  class="defaultInputColor" id="Inches" onkeyup="checkStatus(),changeColor('Inches')" onchange="checkStatus()"  style="border:groove"/></span></td><td><input name="lbs" type="text" size="4"  value="lbs"  onclick="clearInput('lbs')" onblur="insertValue('lbs')"  class="defaultInputColor" id="Pounds" onkeyup="checkStatus(),changeColor('Pounds')" onchange="checkStatus()" style="border:groove"/></td><td><input name="upper1" type="text" size="4" value="upper" onclick="clearInput('upper1')" onblur="insertValue('upper1')"  class="defaultInputColor" id="upper" onkeyup="checkStatus(),changeColor('upper')" onchange="checkStatus()" style="background-color:#6F8498; border-color:#6F8498; border-color:#FADFB9; border:groove" /></td><td><input name="lower1" type="text" size="4"  value="lower" onclick="clearInput('lower1')" onblur="insertValue('lower1')"  class="defaultInputColor" id="lower" onkeyup="checkStatus(),changeColor('lower')" onchange="checkStatus()" style="background-color:#FADFB9; border-color:#FADFB9; border:groove"/></td></tr>
+  
+  <tr><td><span class="rightPadding"></span></td><td><span class="rightPadding"><input name="inches1" type="text" size="4" value="inches" onclick="clearInput('inches1')" onblur="insertValue('inches')"  class="defaultInputColor" id="Inches1" onkeyup="checkStatus(),changeColor('Inches')" onchange="checkStatus()"  style="border:groove"/></span></td><td><input name="lbs1" type="text" size="4"  value="lbs"  onclick="clearInput('lbs1')" onblur="insertValue('lbs')"  class="defaultInputColor" id="Pounds1" onkeyup="checkStatus(),changeColor('Pounds')" onchange="checkStatus()" style="border:groove"/></td><td><input name="upper2" type="text" size="4" value="upper" onclick="clearInput('upper2')" onblur="insertValue('upper1')"  class="defaultInputColor" id="upper2" onkeyup="checkStatus(),changeColor('upper')" onchange="checkStatus()" style="background-color:#6F8498; border-color:#6F8498; border-color:#FADFB9; border:groove" /></td><td><input name="lower2" type="text" size="4"  value="lower" onclick="clearInput('lower2')" onblur="insertValue('lower1')"  class="defaultInputColor" id="lower2" onkeyup="checkStatus(),changeColor('lower')" onchange="checkStatus()" style="background-color:#FADFB9; border-color:#FADFB9; border:groove"/></td></tr>
+
+  </table>
+ 	</form>
+  </div>
+  <div id="tableContainer2"> 
+	<table border="1" align="center">
+	<tr class="bold"><td><strong>Dimension</strong></td><td><strong>95th Percentile</strong></td><td><strong>5th Percentile</strong></td></tr>
+    <tr class="bold" id="secondRow"><div id="stature"></div><!--</td><td id="95thPercentile"></td><td id="5thPercentile"></td>--></tr>
+    </table>
+  </div>  	
+
+   
+<div id="A">
+             <div class="vline" id="Atop"><img src="images/topVerticalLine.gif" width="9" height="77" id="ATop"/></div><div class="line, Adigit" id="ADigit">A</div><div class="vline" id="Abottom"><img src="images/verticalLine.gif" width="9" height="345" id="ATop"/></div>
+  
+  </div>
+
+		<div id="B">
+       	  <div class="vline"><img src="images/topVerticalLine.gif" width="9" height="77" id="BTop"/></div><div  class="line, Adigit" id="BDigit">B</div><div class="vline"><img src="images/verticalLine.gif" width="9" height="345" id="BLow"/></div>
+            
+  		</div>
+
+		<div id="C">
+       	  <div class="vline"><img src="images/topVerticalLine.gif" width="9" height="47" id="CTop"/></div><div  class="line, Adigit" id="CDigit">C</div><div class="vline"><img src="images/bottomVerticalLine.gif" width="9" height="345" id="CLow" /></div>
+            
+  </div>
+         
+         <div id="D">
+       	  <div class="vline"><img src="images/verticalLine.gif" width="9" height="5" id="DTop"/></div><div  class="line, Adigit" id="DDigit">D</div><div class="vline"><img src="images/verticalLine.gif" width="9" height="5" id="DLow"/></div>
+            
+  </div>
+          
+<div id="E">
+    <div class="vline"><img src="images/topVerticalLine.gif" width="9" height="17" id="ETop"/></div><div  class="line, Adigit" id="EDigit">E</div><div class="vline"><img src="images/bottomVerticalLine.gif" width="9" height="17" id="ELow"/></div>
+            
+  </div>
+        
+<div id="F">
+    <div class="vline"><img src="images/topVerticalLine.gif" width="9" height="20" id="FTop"/></div><div  class="line, Adigit" id="FDigit">F</div><div class="vline"><img src="images/bottomVerticalLine.gif" width="9" height="20" id="FLow"/></div>
+            
+  </div>
+        
+<div id="G">
+       	  <div class="vline"><img src="images/topVerticalLine.gif" width="9" height="33" id="GTop"/></div><div  class="line, Adigit" id="GDigit">G</div><div class="vline"><img src="images/bottomVerticalLine.gif" width="9" height="40" id="GLow"/></div>
+            
+  </div>
+         
+         <div id="H">
+       	  <div class="vline"><img src="images/topVerticalLine.gif" width="9" height="48" id="HTop"/></div><div  class="line, Adigit" id="HDigit">H</div><div class="vline"><img src="images/bottomVerticalLine.gif" width="9" height="48" id="HLow"/></div>
+            
+  </div>
+        
+<div id="I">
+       	  <div class="Adigit"><span ><img src="images/leftHorizontalLine.png" width="56" id="ILeft"  /></span><span class="Adigit" id="IDigit" style="background-color:#FFFFFF; padding-left:9px; padding-right:5px; padding-bottom:2px;">I</span><span><img src="images/rightHorizontalLine1.png" width="55" id="IRight" /></span></div>
+            
+  </div>
+     
+     <div id="J">
+   	   <div class="vline"><img src="images/topVerticalLine.gif" width="9" height="70" id="JTop"/></div><div  class="line, Adigit" id="JDigit">J</div><div class="vline"><img src="images/verticalLine.gif" width="9" height="70" id="JLow"/></div>
+           
+  </div>
+        
+<div id="K">
+       	  <div class="vline"><img src="images/topVerticalLine.gif" width="9" height="100" id="KTop"/></div><div  class="line, Adigit" id="KDigit">K</div><div class="vline"><img src="images/verticalLine.gif" width="9" height="90" id="KLow"/></div>
+            
+  </div>
+        
+<div id="L">
+    <div class="vline"><img src="images/topVerticalLine.gif" width="9" height="110" id="LTop"/></div><div  class="line, Adigit" id="LDigit">L</div><div class="vline"><img src="images/verticalLine.gif" width="9" height="103" id="LLow"/></div>
+            
+  </div>
+</div>
+
+<script type="text/javascript"> var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www."); document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E")); </script> <script type="text/javascript"> try { var pageTracker = _gat._getTracker("UA-526007-4"); pageTracker._trackPageview(); } catch(err) {}</script>
+</body>
+</html>

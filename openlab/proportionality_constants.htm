@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Scaling Calculator: Open Design Lab</title>
+   <meta name="viewport" content="width=device-width, initial-scale=1">   
+
+      <link rel="apple-touch-icon" href="./apple-touch-icon.png"/>
+	<meta charset="utf-8">
+
+
+<link rel="stylesheet" href="./css/themes/openlab_tools_v1.css" />
+  <link rel="stylesheet" href="./css/themes/jquery.mobile.icons.min.css" />
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile.structure-1.4.2.min.css" /> 
+  <link rel="stylesheet" href="./css/style.css">
+
+  <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script> 
+  <script src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
+ 
+  
+<script type="text/javascript" src="build_data.js">
+/* This script loads the data. Run build_data.php if the SQLite database is updated! */
+</script>
+
+<script type="text/javascript" src="./stats.js"></script>
+
+<script type="text/javascript">
+
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-526007-4', 'auto');
+  ga('send', 'pageview');
+
+
+
+/* ********************************
+BEGIN CODE FOR KVIEW
+******************************** */
+
+
+function updateK() {
+	
+
+	stat_val = $('#stature_value').val();
+	shoulder_ht_val = 0.818*stat_val;
+	elbow_ht_val = 0.630*stat_val;
+	wrist_ht_val = 0.485*stat_val;
+	fingertip_ht_val = 0.377*stat_val;
+	ankle_ht_val = 0.039*stat_val;
+	popliteal_ht_val = 0.285*stat_val;
+	hip_ht_val = 0.530*stat_val;
+	hip_breadth_val = 0.191*stat_val;
+	shoulder_breadth_val = 0.259*stat_val;
+	upper_arm_val = 0.186*stat_val;
+	lower_arm_val = 0.146*stat_val;
+	hand_val = 0.108*stat_val;
+	
+	if ($("#unit_switch").val()=="mm"){ precisionVal = 0; 
+		}else{ precisionVal = 1; }
+	
+	$('#stature').html('<a href="#popupStature" data-rel="popup" class="bodySegmentLink">'+stat_val+'</a>');
+	$('#shoulder_ht').html('<a href="#popupShoulderHt" data-rel="popup" class="bodySegmentLink">'+shoulder_ht_val.toFixed(precisionVal)+'</a>');
+	$('#elbow_ht').html('<a href="#popupElbow" data-rel="popup" class="bodySegmentLink">'+elbow_ht_val.toFixed(precisionVal)+'</a>');
+	$('#wrist_ht').html('<a href="#popupWrist" data-rel="popup" class="bodySegmentLink">'+wrist_ht_val.toFixed(precisionVal)+'</a>');
+	$('#fingertip_ht').html('<a href="#popupFingertip" data-rel="popup" class="bodySegmentLink">'+fingertip_ht_val.toFixed(precisionVal)+'</a>');
+	$('#ankle_ht').html('<a href="#popupAnkle" data-rel="popup" class="bodySegmentLink">'+ankle_ht_val.toFixed(precisionVal)+'</a>');
+	$('#popliteal_ht').html('<a href="#popupPopliteal" data-rel="popup" class="bodySegmentLink">'+popliteal_ht_val.toFixed(precisionVal)+'</a>');
+	$('#hip_ht').html('<a href="#popupHipHt" data-rel="popup" class="bodySegmentLink">'+hip_ht_val.toFixed(precisionVal)+'</a>');
+	$('#hip_breadth').html('<a href="#popupHipBreadth" data-rel="popup" class="bodySegmentLink">'+hip_breadth_val.toFixed(precisionVal)+'</a>');
+	$('#shoulder_breadth').html('<a href="#popupShoulderBreadth" data-rel="popup" class="bodySegmentLink">'+shoulder_breadth_val.toFixed(precisionVal)+'</a>');
+	$('#upper_arm').html('<a href="#popupUpperArm" data-rel="popup" class="bodySegmentLink">'+upper_arm_val.toFixed(precisionVal)+'</a>');
+	$('#lower_arm').html('<a href="#popupLowerArm" data-rel="popup" class="bodySegmentLink">'+lower_arm_val.toFixed(precisionVal)+'</a>');
+	$('#hand').html('<a href="#popupHand" data-rel="popup" class="bodySegmentLink">'+hand_val.toFixed(precisionVal)+'</a>');
+
+}
+
+$(document).on("change", "#unit_switch", function(event) {
+										  
+		if ($("#unit_switch").val()=="mm"){
+							
+				$("#stature_value").val(($("#stature_value").val()*25.4).toFixed(0));
+				
+				updateK();
+
+				
+		}else{
+								
+				$("#stature_value").val(($("#stature_value").val()/25.4).toFixed(1));
+				
+				updateK();
+
+
+		}
+});
+								  
+
+
+$(document).on('change','#stature_value',function(event) {
+
+
+updateK();
+
+
+});
+
+ ansur_m = new Array(1649,1671,1688,1710,1756,1801,1828,1843,1868);
+ ansur_m_in = new Array();
+ 		for (i=0;i<ansur_m.length;i++){
+		ansur_m_in[i] = ansur_m[i]/25.4;
+		}
+ ansur_f = new Array(1529,1551,1565,1585,1628,1672,1695,1712,1737);
+ ansur_f_in = new Array();
+  		for (i=0;i<ansur_f.length;i++){
+		ansur_f_in[i] = ansur_f[i]/25.4;
+		}
+ nhanes_m = new Array(1636,1666,1684,1713,1763,1815,1844,1860,1887);
+ nhanes_m_in = new Array();
+  		for (i=0;i<nhanes_m.length;i++){
+		nhanes_m_in[i] = nhanes_m[i]/25.4;
+		}
+ nhanes_f = new Array(1507,1533,1549,1577,1622,1667,1691,1708,1731);
+ nhanes_f_in = new Array();
+  		for (i=0;i<nhanes_f.length;i++){
+		nhanes_f_in[i] = nhanes_f[i]/25.4;
+		}
+
+
+
+$(document).on("change",'#select-database,#select-gender,#select-percentile',function(event){
+
+	readInputsAndUpdate();
+	
+}); 
+ 
+ 
+$( document ).on( "pagecreate", function( event ) {
+	$('#select-database').val('ansur').selectmenu('refresh');
+	$('#select-gender').val('male').selectmenu('refresh');
+	$('#select-percentile').val(4).selectmenu('refresh');
+	
+	readInputsAndUpdate();
+	
+
+});
+
+function readInputsAndUpdate(){
+
+if($('#unit_switch').val()=='mm') {
+	if($('#select-database').val()=='ansur'){
+		if($('#select-gender').val()=='male'){
+				predefined_database = ansur_m;
+			}else{
+				predefined_database = ansur_f;
+			}
+	}else{
+		if($('#select-gender').val()=='male'){
+				predefined_database = nhanes_m;
+			}else{
+				predefined_database = nhanes_f;
+			}
+	}
+} else {
+	if($('#select-database').val()=='ansur'){
+		if($('#select-gender').val()=='male'){
+				predefined_database = ansur_m_in;
+			}else{
+				predefined_database = ansur_f_in;
+			}
+	}else{
+		if($('#select-gender').val()=='male'){
+				predefined_database = nhanes_m_in;
+			}else{
+				predefined_database = nhanes_f_in;
+			}
+	}
+}
+	
+	if ($("#unit_switch").val()=="mm"){ precisionVal = 0; 
+		}else{ precisionVal = 1; }
+	
+	percentile_index = $('#select-percentile').val();
+	$('#stature_value').val((predefined_database[percentile_index]).toFixed(precisionVal));
+	
+	updateK();
+
+}
+
+
+/* ********************************
+END CODE FOR KVIEW
+******************************** */
+
+
+</script>   
+        
+  </head>
+<body onLoad="">
+      
+      
+<div data-role="page" id="pageView" data-theme="b" style="min-width:700px;"> 
+          
+
+	<div data-role="header" > 
+			<div class="ui-bar" style="padding:0;">
+				<div id="headerLogoBlock"><a href="http://www.openlab.psu.edu/" target="_blank"><img src="./images/logo_tiny.png" border=0 style="height: 35px; margin-top:5px;"></a></div>
+				<div id="headerTitleBlock"><h1>Scaling Calculator</h1></div>
+				<div id="headerLinkBlock"><a href="http://www.openlab.psu.edu/" style="color:white" target="_blank">openlab.psu.edu</a></div>
+			</div>
+	</div>
+			
+         
+    <div data-role="content">
+          
+          
+    <div style="width:600px; margin:auto">
+          <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" style="float:left">
+          <div style="float:left; padding:8px; font-size:16px;">Stature</div>
+          
+          <label for="select-database">Database</label>
+          <select name="select-database" id="select-database" style="top:0">
+          <option value="ansur">ANSUR</option>
+          <option value="nhanes">NHANES</option>
+          </select>
+          
+          <label for="select-gender">Gender</label>
+          <select name="select-gender" id="select-gender" style="float:left;">
+          <option value="male">M</option>
+          <option value="female">F</option>
+          </select>
+          
+          <label for="select-percentile">Percentile</label>
+          <select name="select-percentile" id="select-percentile">
+          <option value="0">5th</option>
+          <option value="1">10th</option>
+          <option value="2">15th</option>
+          <option value="3">25th</option>
+          <option value="4">50th</option>
+          <option value="5">75th</option>
+          <option value="6">85th</option>
+          <option value="7">90th</option>
+          <option value="8">95th</option>
+          </select>
+          
+     </fieldset>
+          
+          <div style="width: 145px; float: left; margin:0;  margin-left:8px;">
+          <label for="stature_value" class="ui-hidden-accessible" style="display:none"></label>
+          <input type="text" id="stature_value" value="" style="display: inline;" data-mini="true"/>
+          </div>
+          
+          <div style=" float: left; margin:0; padding:0; margin-left:10px; ">
+                <label for="unit_switch" class="ui-hidden-accessible"></label>
+                <select name="unit_switch" id="unit_switch" data-role="slider" data-mini="true">
+                    <option value="mm">mm</option>
+                    <option value="in">in</option>
+                  </select>
+          </div>
+          
+    </div>
+          
+    <br style="clear:both;">
+              
+          
+    <div style="text-align:left; margin: auto ; width:300px; min-height:400px; background-image: url('./images/drillis_blank.png'); background-repeat:no-repeat;">
+          <div style="position:relative; height:0; overflow: visible; left: -16px; top: 138px; " id="stature"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 5px; top: 183px; " id="shoulder_ht"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 28px; top: 230px; " id="elbow_ht"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 55px; top: 268px; " id="wrist_ht"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 76px; top: 307px; " id="fingertip_ht"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 160px; top: 375px; " id="ankle_ht"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 140px; top: 75px; " id="shoulder_breadth"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 140px; top: 195px; " id="hip_breadth"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 200px; top: 325px; " id="popliteal_ht"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 220px; top: 277px; " id="hip_ht"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 220px; top: 85px; " id="upper_arm"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 250px; top: 145px; " id="lower_arm"></div>
+          <div style="position:relative; height:0; overflow: visible; left: 272px; top: 195px; " id="hand"></div>
+
+          
+          </div>
+          
+                    
+          <div data-role="popup" data-arrow="t,r,b,l"  id="popupStature" style="margin-top:10px; max-width:400px"><h3>Stature</h3><p>The vertical distance from the floor to the top of the head.</p></div>
+            <div data-role="popup" data-arrow="t,r,b,l"  id="popupShoulderHt"  style="margin-top:10px; max-width:400px"><h3>Shoulder Height</h3><p>Average ratio of shoulder height to stature is 0.818. R<sup>2</sup>=0.93 and RMSE=16.34.</p><p> Measured from ground to the lateral border of the acromial process (notch in bone on top edge of shoulder).</p></div>
+		<div data-role="popup" data-arrow="t,r,b,l" id="popupElbow" style="margin-top:10px; max-width:400px"><h3>Elbow Height</h3><p>Average ratio of elbow height to stature is 0.630. R<sup>2</sup>=0.20 and RMSE=18.07.</p><p> Measured from ground to radiale (highest point on the outside edge of the radius).</p></div>
+        <div data-role="popup" data-arrow="t,r,b,l" id="popupWrist"  style="margin-top:10px; max-width:400px"><h3>Wrist Height</h3><p>Average ratio of wrist height to stature is 0.485. R<sup>2</sup>=0.73 and RMSE=21.47.</p><p> Measured from ground to the stylion (the lowest point on the bottom of the radius).</p></div>
+        <div data-role="popup" data-arrow="t,r,b,l" id="popupFingertip" style="margin-top:10px; max-width:400px"><h3>Fingertip Height</h3><p>Average ratio of fingertip height to stature is 0.377. R<sup>2</sup>=0.59 and RMSE=24.32.</p><p> Measured from ground to the tip of the middle finger. Fingers are extended with hand pointing at ground.</p></div>
+        <div data-role="popup" data-arrow="t,r,b,l" id="popupAnkle" style="margin-top:10px; max-width:400px"><h3>Ankle Height</h3><p>Average ratio of ankle height to stature is 0.0.039. R<sup>2</sup>=0.21 and RMSE=4.87.</p><p> Measured from ground to the lateral malleolus (outside of ankle bone).</p></div>
+        <div data-role="popup" data-arrow="t,r,b,l" id="popupShoulderBreadth"  style="margin-top:10px; max-width:400px"><h3>Shoulder Breadth</h3><p>Average ratio of shoulder breadth to stature is 0.259. R<sup>2</sup>=0.15 and RMSE=23.89.</p><p> Measured at the outside of the shoulders.</p></div>
+        <div data-role="popup" data-arrow="t,r,b,l" id="popupHipBreadth" style="margin-top:10px; max-width:400px"><h3>Hip Breadth</h3><p>Average ratio of hip breadth to stature is 0.191. R<sup>2</sup>=0.20 and RMSE=18.07.</p><p> Measured at the height of maximum buttock protuberance.</p></div>
+        <div data-role="popup" data-arrow="t,r,b,l" id="popupPopliteal" style="margin-top:10px; max-width:400px"><h3>Popliteal Height</h3><p>Average ratio of popliteal height to stature is 0.285. R<sup>2</sup>=0.76 and RMSE=12.97.</p><p> Measured from ground to the lateral femoral epicondyle (knee pivot point).</p></div>
+        <div data-role="popup" data-arrow="t,r,b,l" id="popupHipHt" style="margin-top:10px; max-width:400px"><h3>Hip Height (Leg Length)</h3><p>Average ratio of leg length to stature is 0.530. R<sup>2</sup>=0.75 and RMSE=24.01.</p><p> Measured from ground to the top of the trochanter (bony part at the outside, top of the femur).</p></div>
+        <div data-role="popup" data-arrow="t,r,b,l" id="popupUpperArm" style="margin-top:10px; max-width:400px"><h3>Upper Arm Length</h3><p>Average ratio of upper arm length to stature is 0.186. R<sup>2</sup>=0.64 and RMSE=10.28.</p><p> Measured from the acromial process (notch in bone on top edge of shoulder) to radiale (highest point on the outside edge of the radius).</p></div>
+        <div data-role="popup" data-arrow="t,r,b,l" id="popupLowerArm" style="margin-top:10px; max-width:400px"><h3>Lower Arm Length</h3><p>Average ratio of lower arm length to stature is 0.146. R<sup>2</sup>=0.48 and RMSE=11.25.</p><p> Measured from the radiale (highest point on the outside edge of radius) to the stylion (the lowest point on the bottom of the radius).</p></div>
+        <div data-role="popup" data-arrow="t,r,b,l" id="popupHand" style="margin-top:10px; max-width:400px"><h3>Hand Length</h3><p>Average ratio of hand length to stature is 0.108. R<sup>2</sup>=0.42 and RMSE=7.44.</p><p> Measured from the stylion (the lowest point on the bottom of the radius) to the tip of the third finger with the hand flat and fingers together.</p></div>
+                   
+          
+          
+
+      <h3 class="ui-bar ui-bar-a">Background</h3>
+			<div class="ui-body">
+			<img src="/wp-content/uploads/2014/03/drillis-contini.png" style="float:left; margin:10px;" border=0>
+			<p>Proportionality constants describe the average ratio of a given body segment length to stature. The ratios used here are from Drillis and Contini (1966) and are among the most-used (see figure to the left). Their use can be problematic, however, since segment ratios of any individual are not likely to be "average". In other words, the ratios for a given segment vary widely across individuals within a given population. Also, while a measure like "shoulder height" correlates well with stature (R<sup>2</sup> = 0.93), other measures, such as "shoulder breadth" (R<sup>2</sup> = 0.15) do not. As a result, this is a helpful tool for exploring relationships, but should not be used for real design. </p>
+			<p>The R<sup>2</sup> and RMSE are reported for each segment by tapping on the indicated value. These values come from a regression on the ANSUR data.</p>
+			<p>For a more detailed discussion of the strengths and weaknesses of proportionality constants, see Fromuth and Parkinson (2008), "Predicting 5th and 95th percentile anthropometric segment lengths from population stature" by visiting dfhv.org.</p>
+			</div>
+
+    </div>
+    </div>
+      
+  </body>
+</html>
