@@ -1,40 +1,6 @@
 <!DOCTYPE html>
 <html>
   <head>
-  <style>
-  svg {
-  font: 10px sans-serif;
-}
-
-.background path {
-  fill: none;
-  stroke: #ddd;
-  shape-rendering: crispEdges;
-}
-
-.foreground path {
-  fill: none;
-  stroke: steelblue;
-}
-
-.brush .extent {
-  fill-opacity: .3;
-  stroke: #fff;
-  shape-rendering: crispEdges;
-}
-
-.axis line,
-.axis path {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
-.axis text {
-  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
-  cursor: move;
-}
-</style>
   <title>Anthropometric Data Explorer Calculator: Open Design Lab</title>
    <meta name="viewport" content="width=device-width, initial-scale=1">	  
 
@@ -62,7 +28,7 @@
 <script type="text/javascript" src="./simple_statistics.js"></script>
 <script src="./jquery.csv-0.71.min.js"></script>
 <script language="javascript" type="text/javascript" src="./flot/jquery.flot.js"></script>
-<script src="d3.v3.min.js"></script>
+
 
 <script type="text/javascript">
 
@@ -241,6 +207,7 @@ $(window).resize(function(){ plotPDF(selectedMeasures); });
 $(document).on('change','#anthroPickerForm',function(event) {
 
 //	refreshMvData();
+	
 
 });
 
@@ -341,12 +308,12 @@ function getSuffix(percentile_value){
 function buildOutput(selectedMeasures){
 
 	output_html = '';
-	
-	/*if (selectedMeasures[i]=='BMI'){
+	for (i=0; i<selectedMeasures.length; i++){
+	if (selectedMeasures[i]=='BMI'){
 		units = '';
 	}else{
 		units = ' mm';
-	}*/
+	}
 	
 	// fetch rawData
 	if (typeof rawData[selectedMeasures[i]] === 'undefined') {
@@ -364,8 +331,8 @@ density_X[selectedMeasures[i]] = $.grep(density_X[selectedMeasures[i]],function(
 		density_Y[selectedMeasures[i]] = tmp.split(",");
 density_Y[selectedMeasures[i]] = $.grep(density_Y[selectedMeasures[i]],function(n){ return(n) });
 	}
-	output_html += ''
-	/*output_html += '<div id="'+selectedMeasures[i]+'" class="outputBlock">';
+	
+	output_html += '<div id="'+selectedMeasures[i]+'" class="outputBlock">';
 	output_html += '<h3 style="text-align:left">'+fullName[selectedMeasures[i]]+'</h3>';
 	output_html += '<div class="outputImage"><img src="./images/anthro/'+image[selectedMeasures[i]]+'"></div>';
 	output_html += '<div id="plotPDF_'+selectedMeasures[i]+'" class="pdfPlaceholder"></div><br>';	
@@ -373,14 +340,13 @@ density_Y[selectedMeasures[i]] = $.grep(density_Y[selectedMeasures[i]],function(
 	output_html += '<label for="slider-'+selectedMeasures[i]+'" class="ui-hidden-accessible">Percentile</label>';
     output_html += '<input type="range" name="slider-'+selectedMeasures[i]+'" id="slider-'+selectedMeasures[i]+'" class="percentileSlider" value="50" min="1" max="99" />';
     output_html += '<p id="slider_output_'+selectedMeasures[i]+'" style="font-weight:bold;">50th percentile: '+ss.quantile(rawData[selectedMeasures[i]],0.5)+units+'</p>';
-	output_html += '</div></div>';*/
-	
+	output_html += '</div></div>';
+	}
 		
 	$('#output').html(output_html).trigger('create');
 		
 		
 	plotPDF(selectedMeasures);
-	drawPcoord();
 
 	
 }
@@ -427,141 +393,32 @@ function getDensity(measure,dimension) {
 
 	
 function plotPDF(selectedMeasures){
-	
+	var options = {
+		xaxis:{
+			show: true
+			},
+		yaxis:{
+			show: false
+			},
+		grid:{
+			borderWidth: 0
+			}
+	}
+	for (i=0; i<selectedMeasures.length; i++){	
+		tmp = [];
+		var x = density_X[selectedMeasures[i]];
+		var y = density_Y[selectedMeasures[i]];
+		for (j=0; j<x.length; j++){
+			tmp.push([x[j],y[j]]);
+		}
+		$.plot("#plotPDF_"+selectedMeasures[i],[tmp],options);
+		//$.plot(asdf,[[densityFemales_X.STATURE],[densityFemales_Y.STATURE]]);
+		//$.plot(selectedMeasures[i],[plotPDF]);
+	}
+ 
 }
 
-function drawPcoord() {
-	var margin = {top: 30, right: 10, bottom: 10, left: 10},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
 
-	var x = d3.scale.ordinal().rangePoints([0, width], 1),
-    y = {},
-    dragging = {};
-
-	var line = d3.svg.line(),
-    axis = d3.svg.axis().orient("left"),
-    background,
-    foreground;
-
-	var svg = d3.select("#pcoord");
-	svg.attr("width", width + margin.left + margin.right)
-		.attr("height", height + margin.top + margin.bottom).append("g")
-		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-	d3.csv("ANSURmenCSVoutput.csv", function(error, ANSURmenCSVoutput) {
-
-  // Extract the list of dimensions and create a scale for each.
-  	x.domain(dimensions = d3.keys(ANSURmenCSVoutput[0]).filter(function(d) {
-    	return d != "name" && (y[d] = d3.scale.linear()
-        .domain(d3.extent(ANSURmenCSVoutput, function(p) { if(+p[d] == 0) return null; else return +p[d]; }))
-        .range([height, 0]));
-  	}));
-  	var name="10";
-  	console.log(Number(name));
-  // Add grey background lines for context.
-  	background = svg.append("g")
-      .attr("class", "background")
-    .selectAll("path")
-      .data(ANSURmenCSVoutput)
-    .enter().append("path")
-      .attr("d", path);
-
-  // Add blue foreground lines for focus.
-  	foreground = svg.append("g")
-      .attr("class", "foreground")
-    .selectAll("path")
-      .data(ANSURmenCSVoutput)
-    .enter().append("path")
-      .attr("d", path);
-
-  // Add a group element for each dimension.
-  	var g = svg.selectAll(".dimension")
-      .data(dimensions)
-    .enter().append("g")
-      .attr("class", "dimension")
-      .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
-      .call(d3.behavior.drag()
-        .origin(function(d) { return {x: x(d)}; })
-        .on("dragstart", function(d) {
-          dragging[d] = x(d);
-          background.attr("visibility", "hidden");
-        })
-        .on("drag", function(d) {
-          dragging[d] = Math.min(width, Math.max(0, d3.event.x));
-          foreground.attr("d", path);
-          dimensions.sort(function(a, b) { return position(a) - position(b); });
-          x.domain(dimensions);
-          g.attr("transform", function(d) { return "translate(" + position(d) + ")"; })
-        })
-        .on("dragend", function(d) {
-          delete dragging[d];
-          transition(d3.select(this)).attr("transform", "translate(" + x(d) + ")");
-          transition(foreground).attr("d", path);
-          background
-              .attr("d", path)
-            .transition()
-              .delay(500)
-              .duration(0)
-              .attr("visibility", null);
-        }));
-
-  // Add an axis and title.
-  	g.append("g")
-      .attr("class", "axis")
-      .each(function(d) { d3.select(this).call(axis.scale(y[d])); })
-    	.append("text")
-      .style("text-anchor", "middle")
-      .attr("y", -9)
-      .text(function(d) { return d; });
-
-  // Add and store a brush for each axis.
-  	g.append("g")
-      .attr("class", "brush")
-      .each(function(d) {
-        d3.select(this).call(y[d].brush = d3.svg.brush().y(y[d]).on("brushstart", brushstart).on("brush", brush));
-      })
-    	.selectAll("rect")
-      .attr("x", -8)
-      .attr("width", 16);
-	});
-
-	function position(d) {
-  		var v = dragging[d];
-  		return v == null ? x(d) : v;
-	}
-
-	function transition(g) {
-  		return g.transition().duration(500);
-	}
-
-// Returns the path for a given data point.
-	function path(d) {
-  		return line(dimensions.map(function(p) { return [position(p), y[p](d[p])]; }));
-	}
-
-	function brushstart() {
-  		d3.event.sourceEvent.stopPropagation();
-	}
-
-	// Handles a brush event, toggling the display of foreground lines.
-	function brush() {
-
-  		var actives = dimensions.filter(function(p) { return !y[p].brush.empty(); }),
-      		extents = actives.map(function(p) { return y[p].brush.extent(); });
-  		foreground.style("display", function(d) {
-    	return actives.every(function(p, i) {
-    		d3.select("#test").html(y[p].brush.extent());
-
-      		return extents[i][0] <= d[p] && d[p] <= extents[i][1];
-    }) ? null : "none";
-    	shit();
-  });
-  		function shit() { 
-  				
-  		}
- }
-}
 </script>
   
 		
@@ -617,11 +474,14 @@ function drawPcoord() {
   	<input type="hidden" id="csvFilename" name="csvFilename">
 </form>
  <iframe name="theIframe" style="display:none"></iframe>
-	<div style="text-align:center; clear:both; margin: 0 auto; width:90%" id="output">
-		<img src="./images/ajax-loader.gif"><br><b>Output panel loading...</b>
-	</div>
-	<div class="outputImage"><svg id="pcoord"></svg></div>
-   </div>
+ 
+			  <div style="text-align:center; clear:both; margin: 0 auto; width:90%" id="output">
+				 <img src="./images/ajax-loader.gif"><br><b>Output panel loading...</b>
+				 </div>
+   
+			  
+			  
+		  </div>
 		  </div>
 		  
 		 
