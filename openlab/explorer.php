@@ -72,26 +72,18 @@ include './data/getDbDescriptiveData.php';
 
 ?>
 
-
 Array.prototype.sum = function() {
-		// An array Method that will SUM the elements of an array		
-
-		  
-		  return (! this.length) ? 0 : this.slice(1).sum() +
-			  ((typeof this[0] == 'number') ? this[0] : 0);
-		
+	// An array Method that will SUM the elements of an array		
+	return (! this.length) ? 0 : this.slice(1).sum() + ((typeof this[0] == 'number') ? this[0] : 0);
 };
-
-
-		
 
 // AJAX LOADING INDICATOR
 $(document).ajaxStart(function () {
- 		//show ajax indicator
-ajaxindicatorstart();
+ 	//show ajax indicator
+	ajaxindicatorstart();
 }).ajaxStop(function () {
-//hide ajax indicator
-ajaxindicatorstop();
+	//hide ajax indicator
+	ajaxindicatorstop();
 });
 
 function ajaxindicatorstart()
@@ -284,26 +276,24 @@ ajaxindicatorstart();
 });
 
 function getDensity(dimension) {
-			var result = [];
-			$.ajax({
-				type: "POST",
-				async: false,
-				dataType: 'text',
-				data: { measure: measure, gender: gender, table: 'density_'+population+'_'+dimension },
-				url: "./data/getData.php",
-				success: function(data) {
-					result = data;
-				},
-				error: function(){
-					alert("Error fetching density data.");
-				}
-			});
-			return result;
+	var result = [];
+	$.ajax({
+		type: "POST",
+		async: false,
+		dataType: 'text',
+		data: { measure: measure, gender: gender, table: 'density_'+population+'_'+dimension },
+		url: "./data/getData.php",
+		success: function(data) {
+			result = data;
+		},
+		error: function(){
+			alert("Error fetching density data.");
 		}
+	});
+	return result;
+}
 
 function dimSwitch(dimName){
-
-
 	if ($.inArray(dimName,selectedMeasures)==-1){
 		selectedMeasures.push(dimName);
 	} else {
@@ -366,6 +356,7 @@ function buildOutput(selectedMeasures){
 			density_Y[selectedMeasures[i]] = $.grep(density_Y[selectedMeasures[i]],function(n){ return(n) });
 		}
 	}
+
 	output_html += ''
 	/*output_html += '<div id="'+selectedMeasures[i]+'" class="outputBlock">';
 	output_html += '<h3 style="text-align:left">'+fullName[selectedMeasures[i]]+'</h3>';
@@ -388,44 +379,44 @@ function buildOutput(selectedMeasures){
 }
 
 function getDimension(measure) {
-			var result = [];
-			$.ajax({
-				type: "POST",
-				async: false,
-				dataType: "text",
-				data: { measure: measure, gender: gender, table: population+gender },
-				url: "./data/getData.php",
-				success: function(data) {
-					result = data;
-				},
-				error: function(){
-					alert("Error fetching Dimension data.");
-				}
-			});
-			return result;
+	var result = [];
+	$.ajax({
+		type: "POST",
+		async: false,
+		dataType: "text",
+		data: { measure: measure, gender: gender, table: population+gender },
+		url: "./data/getData.php",
+		success: function(data) {
+			result = data;
+		},
+		error: function(){
+			alert("Error fetching Dimension data.");
 		}
+	});
+	return result;
+}
 
 
 
 
 	
 function getDensity(measure,dimension) {
-			var result = [];
-			$.ajax({
-				type: "POST",
-				async: false,
-				dataType: "text",
-				data: { measure: measure, gender: gender, table: 'density_'+population+'_'+dimension },
-				url: "./data/getData.php",
-				success: function(data) {
-					result = data;
-				},
-				error: function(){
-					alert("Error fetching Density data.");
-				}
-			});
-			return result;
+	var result = [];
+	$.ajax({
+		type: "POST",
+		async: false,
+		dataType: "text",
+		data: { measure: measure, gender: gender, table: 'density_'+population+'_'+dimension },
+		url: "./data/getData.php",
+		success: function(data) {
+			result = data;
+		},
+		error: function(){
+			alert("Error fetching Density data.");
 		}
+	});
+	return result;
+}
 
 function drawPcoord(selectedMeasures) {
 	var margin = {top: 30, right: 10, bottom: 10, left: 10},
@@ -448,8 +439,8 @@ function drawPcoord(selectedMeasures) {
 	d3.csv("ANSURmenCSVoutput.csv", function(error, ANSURmenCSVoutput) {
 
   // Extract the list of dimensions and create a scale for each.
-  	x.domain(dimensions = d3.keys(ANSURmenCSVoutput[0]).filter(function(d) {
-    	return d != "name" && (y[d] = d3.scale.linear()
+  	x.domain(dimensions = d3.keys(rawData).filter(function(d) {
+    	return d != "sum" && (y[d] = d3.scale.linear()
         .domain(d3.extent(ANSURmenCSVoutput, function(p) { 
         	// if(+p[d] == 0) 
         	// 	return null; 
@@ -458,73 +449,86 @@ function drawPcoord(selectedMeasures) {
         }))
         .range([height, 0]));
   	}));
+
   	var name="10";
   	console.log(Number(name));
-  // Add grey background lines for context.
+	
+	// Add grey background lines for context.
   	background = svg.append("g")
-      .attr("class", "background")
-    .selectAll("path")
-      .data(ANSURmenCSVoutput)
-    .enter().append("path")
-      .attr("d", path);
-
-  // Add blue foreground lines for focus.
+  		.attr("class", "background")
+  		.selectAll("path")
+  		.data(ANSURmenCSVoutput)
+  		.enter().append("path")
+  		.attr("d", path);
+	
+	// Add blue foreground lines for focus.
   	foreground = svg.append("g")
-      .attr("class", "foreground")
-    .selectAll("path")
-      .data(ANSURmenCSVoutput)
-    .enter().append("path")
-      .attr("d", path);
+  		.attr("class", "foreground")
+  		.selectAll("path")
+  		.data(ANSURmenCSVoutput)
+  		.enter().append("path")
 
-  // Add a group element for each dimension.
+	// Add a group element for each dimension.
   	var g = svg.selectAll(".dimension")
-      .data(dimensions)
-    .enter().append("g")
-      .attr("class", "dimension")
-      .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
-      .call(d3.behavior.drag()
-        .origin(function(d) { return {x: x(d)}; })
-        .on("dragstart", function(d) {
-          dragging[d] = x(d);
-          background.attr("visibility", "hidden");
-        })
-        .on("drag", function(d) {
-          dragging[d] = Math.min(width, Math.max(0, d3.event.x));
-          foreground.attr("d", path);
-          dimensions.sort(function(a, b) { return position(a) - position(b); });
-          x.domain(dimensions);
-          g.attr("transform", function(d) { return "translate(" + position(d) + ")"; })
-        })
-        .on("dragend", function(d) {
-          delete dragging[d];
-          transition(d3.select(this)).attr("transform", "translate(" + x(d) + ")");
-          transition(foreground).attr("d", path);
-          background
-              .attr("d", path)
-            .transition()
-              .delay(500)
-              .duration(0)
-              .attr("visibility", null);
-        }));
+  		.data(dimensions)
+  		.enter().append("g")
+  		.attr("class", "dimension")
+  		.attr("transform", function(d) { 
+  			return "translate(" + x(d) + ")"; 
+  		})
+  		.call(d3.behavior.drag()
+        	.origin(function(d) { 
+        		return {x: x(d)}; 
+        	})
+        	.on("dragstart", function(d) {
+				dragging[d] = x(d);
+				background.attr("visibility", "hidden");
+        	})
+        	.on("drag", function(d) {
+				dragging[d] = Math.min(width, Math.max(0, d3.event.x));
+				foreground.attr("d", path);
+				dimensions.sort(function(a, b) { 
+					return position(a) - position(b); 
+				});
+				x.domain(dimensions);
+				g.attr("transform", function(d) { 
+					return "translate(" + position(d) + ")"; 
+				})
+        	})
+	        .on("dragend", function(d) {
+				delete dragging[d];
+				transition(d3.select(this)).attr("transform", "translate(" + x(d) + ")");
+				transition(foreground).attr("d", path);
+				background
+	            	.attr("d", path)
+	            	.transition()
+	            	.delay(500)
+	            	.duration(0)
+            		.attr("visibility", null);
+	        }));
 
-  // Add an axis and title.
-  	g.append("g")
-      .attr("class", "axis")
-      .each(function(d) { d3.select(this).call(axis.scale(y[d])); })
-    	.append("text")
-      .style("text-anchor", "middle")
-      .attr("y", -9)
-      .text(function(d) { return d; });
+	// Add an axis and title.
+	g.append("g")
+		.attr("class", "axis")
+		.each(function(d) { 
+			d3.select(this).call(axis.scale(y[d])); 
+		})
+		.append("text")
+		.style("text-anchor", "middle")
+		.attr("y", -9)
+		.text(function(d) { 
+			return d; 
+		});
 
-  // Add and store a brush for each axis.
+  	// Add and store a brush for each axis.
   	g.append("g")
-      .attr("class", "brush")
-      .each(function(d) {
-        d3.select(this).call(y[d].brush = d3.svg.brush().y(y[d]).on("brushstart", brushstart).on("brush", brush));
-      })
+		.attr("class", "brush")
+		.each(function(d) {
+			d3.select(this).call(y[d].brush = d3.svg.brush().y(y[d]).on("brushstart", brushstart).on("brush", brush));
+		})
     	.selectAll("rect")
-      .attr("x", -8)
-      .attr("width", 16);
+      	.attr("x", -8)
+      	.attr("width", 16);
 	});
 
 	function position(d) {
