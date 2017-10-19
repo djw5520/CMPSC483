@@ -444,8 +444,7 @@ function drawPcoord() {
     background,
     foreground;
 
-	var svg = d3.select("#pcoord");
-	svg.attr("width", width + margin.left + margin.right)
+	var svg = d3.select("#pcoord").select("svg").attr("width", width + margin.left + margin.right)
 		.attr("height", height + margin.top + margin.bottom).append("g")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -454,7 +453,12 @@ function drawPcoord() {
   // Extract the list of dimensions and create a scale for each.
   	x.domain(dimensions = d3.keys(ANSURmenCSVoutput[0]).filter(function(d) {
     	return d != "name" && (y[d] = d3.scale.linear()
-        .domain(d3.extent(ANSURmenCSVoutput, function(p) { if(+p[d] == 0) return null; else return +p[d]; }))
+        .domain(d3.extent(ANSURmenCSVoutput, function(p) { 
+        	// if(+p[d] == 0) 
+        	// 	return null; 
+        	// else 
+        		return +p[d]; 
+        }))
         .range([height, 0]));
   	}));
   	var name="10";
@@ -555,100 +559,74 @@ function drawPcoord() {
 
       		return extents[i][0] <= d[p] && d[p] <= extents[i][1];
     }) ? null : "none";
-    	shit();
   });
-  		function shit() { 
-  				
-  		}
  }
 }
 </script>
   
-		
-  </head>
-  <body onLoad="" style="margin:0; padding: 0; width: 100%;">
+</head>
+	<body onLoad="" style="margin:0; padding: 0; width: 100%;">
+	<?php include_once("analyticstracking.php") ?>
 
-<?php include_once("analyticstracking.php") ?>
-
-<div data-role="page" id="pageView" data-theme="d"> 
-	 
-
-
-<div data-role="header" > 
+	<div data-role="page" id="pageView" data-theme="d"> 
+		<div data-role="header" > 
 			<div class="ui-bar" style="padding:0;">
 				<div id="headerLogoBlock"><a href="http://www.openlab.psu.edu/" target="_blank"><img src="./images/logo_tiny.png" border=0 style="height: 35px; margin-top:5px;"></a></div>
 				<div id="headerTitleBlock"><h1>Anthropometric Data Explorer</h1></div>
 				<div id="headerLinkBlock"><a href="http://www.openlab.psu.edu/" style="color:white" target="_blank">openlab.psu.edu</a></div>
 			</div>
-</div>
+		</div>
 			
-		  <div data-role="content">
-		  
-		  <div class="ui-grid-a">
-		  
-			<div class="ui-block-a" style="width: 25%;  text-align:center; ">
-			
-			<!-- ANTHRO PANEL -->
-						
-			<div id="dbSelectContainer" style="text-align:left;"></div>
-		  
-				<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" style="text-align:left;">
-					<legend style="font-size:14px; font-weight:bold; margin-right:20px; margin-top:10px; margin-bottom:5px;">Gender</legend>
-					<input type="radio" name="genderSwitch" id="genderSwitch_M" class="genderButton" checked="checked">
-					<label for="genderSwitch_M">Male</label>
-					<input type="radio" name="genderSwitch" id="genderSwitch_F" class="genderButton" >
-					<label for="genderSwitch_F">Female</label>
-					<input type="radio" name="genderSwitch" id="genderSwitch_C" class="genderButton" >
-					<label for="genderSwitch_C">Both</label>
-				</fieldset>
+		<div data-role="content">
+			<div class="ui-grid-a">
+				<div class="ui-block-a" style="width: 25%;  text-align:center; ">
+					<!-- ANTHRO PANEL -->
 
-				<form name="anthroPickerForm" id="anthroPickerForm" style="margin-top:20px;"></form>
-		  
-				<div id="anthroPopups"><img src="./images/ajax-loader.gif"><br><b>Anthro panel loading...</b></div>
+					<div id="dbSelectContainer" style="text-align:left;"></div>
+			  
+					<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" style="text-align:left;">
+						<legend style="font-size:14px; font-weight:bold; margin-right:20px; margin-top:10px; margin-bottom:5px;">Gender</legend>
+						<input type="radio" name="genderSwitch" id="genderSwitch_M" class="genderButton" checked="checked">
+						<label for="genderSwitch_M">Male</label>
+						<input type="radio" name="genderSwitch" id="genderSwitch_F" class="genderButton" >
+						<label for="genderSwitch_F">Female</label>
+						<input type="radio" name="genderSwitch" id="genderSwitch_C" class="genderButton" >
+						<label for="genderSwitch_C">Both</label>
+					</fieldset>
 
+					<form name="anthroPickerForm" id="anthroPickerForm" style="margin-top:20px;"></form>
+					<div id="anthroPopups"><img src="./images/ajax-loader.gif"><br><b>Anthro panel loading...</b></div>
+
+				</div>
+				<div class="ui-block-b" style="width:75%;">
+					<form data-ajax="false" id="downloadSelectedMeasures" action="generateCsv.php" method="POST" target="theIframe" style="width: 50%; margin: auto;">
+						<input type="button" value="Download Data for Selected Measures" onClick="generateCsv();" data-mini="true">
+						<input type="hidden" id="csvOutput" name="csvOutput">
+						<input type="hidden" id="csvFilename" name="csvFilename">
+					</form>
+					<iframe name="theIframe" style="display:none"></iframe>
+					
+					<div style="text-align:center; clear:both; margin: 0 auto; width:90%" id="output">
+						<img src="./images/ajax-loader.gif"><br><b>Output panel loading...</b>
+					</div>
+					<div class="outputImage" id="pcoord"><svg></svg></div>
+				</div>
 			</div>
+			<h3 class="ui-bar ui-bar-a">Background</h3>
 			
-			
-			<div class="ui-block-b" style="width:75%;">
-			
-<form data-ajax="false" id="downloadSelectedMeasures" action="generateCsv.php" method="POST" target="theIframe" style="width: 50%; margin: auto;">
-    <input type="button" value="Download Data for Selected Measures" onClick="generateCsv();" data-mini="true">
- 	<input type="hidden" id="csvOutput" name="csvOutput">
-  	<input type="hidden" id="csvFilename" name="csvFilename">
-</form>
- <iframe name="theIframe" style="display:none"></iframe>
-	<div style="text-align:center; clear:both; margin: 0 auto; width:90%" id="output">
-		<img src="./images/ajax-loader.gif"><br><b>Output panel loading...</b>
-	</div>
-	<div class="outputImage"><svg id="pcoord"></svg></div>
-   </div>
-		  </div>
-		  
-		 
-	  
-	  
-
-
-
-
-
-	
-<h3 class="ui-bar ui-bar-a">Background</h3>
 			<div class="ui-body">
-<p>This tool allows for the exploration and download of anthropometric data, given the following sources of anthropometry:</p>
-<div id="dbDescription"></div>
-</div>
+				<p>This tool allows for the exploration and download of anthropometric data, given the following sources of anthropometry:</p>
+				<div id="dbDescription"></div>
+			</div>
+		</div>
+		<div id="resultLoading" style="display:none">
+			<div id="resultLoadingContent">
+				<div>
+					<img src="./images/ajax-loader.gif"><br>Loading data...
+				</div>
+			</div>
 
-
-
-</div>
-   
-
-
-	  
-<div id="resultLoading" style="display:none"><div id="resultLoadingContent"><div><img src="./images/ajax-loader.gif"><br>Loading data...</div></div><div class="bg"></div></div>
-	 
-
-	  
-  </body>
+			<div class="bg"></div>
+		</div>
+</body>
 </html>
