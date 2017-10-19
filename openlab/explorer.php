@@ -349,20 +349,22 @@ function buildOutput(selectedMeasures){
 	}*/
 	
 	// fetch rawData
-	if (typeof rawData[selectedMeasures[i]] === 'undefined') {
-		var tmp = getDimension(selectedMeasures[i]);
-		rawData[selectedMeasures[i]] = tmp.split(",");
+	for(i = 0; i < selectedMeasures.length; i++) {
+		if (typeof rawData[selectedMeasures[i]] === 'undefined') {
+			var tmp = getDimension(selectedMeasures[i]);
+			rawData[selectedMeasures[i]] = tmp.split(",");
 			
 	
 	// fetch density distribution X
-		var tmp = getDensity(selectedMeasures[i],'x');
-		density_X[selectedMeasures[i]] = tmp.split(",");
-density_X[selectedMeasures[i]] = $.grep(density_X[selectedMeasures[i]],function(n){ return(n) });
+			var tmp = getDensity(selectedMeasures[i],'x');
+			density_X[selectedMeasures[i]] = tmp.split(",");
+			density_X[selectedMeasures[i]] = $.grep(density_X[selectedMeasures[i]],function(n){ return(n) });
 	
 	// fetch density distribution Y
-		var tmp = getDensity(selectedMeasures[i],'y');
-		density_Y[selectedMeasures[i]] = tmp.split(",");
-density_Y[selectedMeasures[i]] = $.grep(density_Y[selectedMeasures[i]],function(n){ return(n) });
+			var tmp = getDensity(selectedMeasures[i],'y');
+			density_Y[selectedMeasures[i]] = tmp.split(",");
+			density_Y[selectedMeasures[i]] = $.grep(density_Y[selectedMeasures[i]],function(n){ return(n) });
+		}
 	}
 	output_html += ''
 	/*output_html += '<div id="'+selectedMeasures[i]+'" class="outputBlock">';
@@ -378,9 +380,9 @@ density_Y[selectedMeasures[i]] = $.grep(density_Y[selectedMeasures[i]],function(
 		
 	$('#output').html(output_html).trigger('create');
 		
-		
-	plotPDF(selectedMeasures);
-	drawPcoord();
+	console.log(rawData);
+
+	drawPcoord(selectedMeasures);
 
 	
 }
@@ -425,12 +427,7 @@ function getDensity(measure,dimension) {
 			return result;
 		}
 
-	
-function plotPDF(selectedMeasures){
-	
-}
-
-function drawPcoord() {
+function drawPcoord(selectedMeasures) {
 	var margin = {top: 30, right: 10, bottom: 10, left: 10},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
