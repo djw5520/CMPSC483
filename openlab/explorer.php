@@ -227,7 +227,7 @@ ajaxindicatorstart();
 	setTimeout(function(){buildOutput(selectedMeasures)},200);;
 });
 
-$(window).resize(function(){ plotPDF(selectedMeasures); });
+$(window).resize(function(){  });
 
 
 $(document).on('change','#anthroPickerForm',function(event) {
@@ -371,7 +371,6 @@ function buildOutput(selectedMeasures){
 		
 	$('#output').html(output_html).trigger('create');
 		
-	console.log(rawData);
 
 	drawPcoord(selectedMeasures);
 
@@ -437,27 +436,39 @@ function drawPcoord(selectedMeasures) {
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 	d3.csv("ANSURmenCSVoutput.csv", function(error, ANSURmenCSVoutput) {
-
+		/*console.log(ANSURmenCSVoutput);
+		console.log(rawData);*/
+		console.log(ANSURmenCSVoutput[0]['STATURE']);
   // Extract the list of dimensions and create a scale for each.
-  	x.domain(dimensions = d3.keys(rawData).filter(function(d) {
+  	x.domain(dimensions = selectedMeasures.filter(function(d) {
+
     	return d != "sum" && (y[d] = d3.scale.linear()
-        .domain(d3.extent(ANSURmenCSVoutput, function(p) { 
-        	// if(+p[d] == 0) 
-        	// 	return null; 
-        	// else 
-        		return +p[d]; 
+        .domain(d3.extent(rawData[d], function(p) { 
+        		return +p; 
         }))
         .range([height, 0]));
   	}));
-
-  	var name="10";
-  	console.log(Number(name));
 	
+
 	// Add grey background lines for context.
   	background = svg.append("g")
   		.attr("class", "background")
   		.selectAll("path")
-  		.data(ANSURmenCSVoutput)
+  		.data(function() {
+  			let bigarr = [];
+  			let arr = [];
+  			for(let i = 0; i < rawData[selectedMeasures[0]].length; i ++) {
+  				console.log(selectedMeasures.length);
+  				for(let j = 0; j < selectedMeasures.length; j ++){
+  					//console.log(rawData[selectedMeasures[j]][i]);
+  					arr.push([selectedMeasures[j], rawData[selectedMeasures[j]][i]]);
+  				}
+  				bigarr.push(arr);
+			}
+			console.log(bigarr);
+			console.log(ANSURmenCSVoutput);
+			return bigarr;
+  		})
   		.enter().append("path")
   		.attr("d", path);
 	
@@ -466,7 +477,7 @@ function drawPcoord(selectedMeasures) {
   		.attr("class", "foreground")
   		.selectAll("path")
   		.data(ANSURmenCSVoutput)
-  		.enter().append("path")
+  		.enter().append("path").attr("d",path);
 
 	// Add a group element for each dimension.
   	var g = svg.selectAll(".dimension")
