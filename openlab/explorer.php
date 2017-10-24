@@ -179,7 +179,7 @@ rawData = [];
 gender = 'men'; // men (1) by default; women = 2; combined = 3
 population = 'ANSUR'; // ansur by default; other choices given in table database_definitions
 selectedDims = new Array();
-selectedMeasures = new Array('STATURE','BMI');
+selectedMeasures = new Array('STATURE','BMI', 'BIACROMIAL_BRTH', 'MASS', 'ACROMION_HT');
 
 //anthroTable = population+gender; //default value
 densityMales_X = $.csv.toObjects(getDensityData('./data/ansurDensityMales_X.csv'));
@@ -435,40 +435,38 @@ function drawPcoord(selectedMeasures) {
 		.attr("height", height + margin.top + margin.bottom).append("g")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-	d3.csv("ANSURmenCSVoutput.csv", function(error, ANSURmenCSVoutput) {
-		/*console.log(ANSURmenCSVoutput);
-		console.log(rawData);*/
-		console.log(ANSURmenCSVoutput[0]['STATURE']);
+	d3.csv("", function(error, ANSURmenCSVoutput) {
+		
+		
   // Extract the list of dimensions and create a scale for each.
   	x.domain(dimensions = selectedMeasures.filter(function(d) {
 
     	return d != "sum" && (y[d] = d3.scale.linear()
-        .domain(d3.extent(rawData[d], function(p) { 
+        .domain(d3.extent(rawData[d], function(p) {
+        		if(+p == null) return null; else  
         		return +p; 
         }))
         .range([height, 0]));
   	}));
 	
-
 	// Add grey background lines for context.
   	background = svg.append("g")
   		.attr("class", "background")
   		.selectAll("path")
-  		.data(function() {
-  			let bigarr = [];
+  		.data(
+  		function() { 
+  			var obj = {}; 
   			let arr = [];
-  			for(let i = 0; i < rawData[selectedMeasures[0]].length; i ++) {
-  				console.log(selectedMeasures.length);
-  				for(let j = 0; j < selectedMeasures.length; j ++){
-  					//console.log(rawData[selectedMeasures[j]][i]);
-  					arr.push([selectedMeasures[j], rawData[selectedMeasures[j]][i]]);
+  			for(let i = 0; i < rawData[selectedMeasures[0]].length; i++) { 
+  				arr[i] = {}; 
+  				for(let j = 0; j < selectedMeasures.length; j++) {
+  					arr[i][selectedMeasures[j]] = rawData[selectedMeasures[j]][i];
   				}
-  				bigarr.push(arr);
-			}
-			console.log(bigarr);
-			console.log(ANSURmenCSVoutput);
-			return bigarr;
+  			}
+  			console.log(arr);
+  			return arr;
   		})
+  		
   		.enter().append("path")
   		.attr("d", path);
 	
@@ -476,7 +474,18 @@ function drawPcoord(selectedMeasures) {
   	foreground = svg.append("g")
   		.attr("class", "foreground")
   		.selectAll("path")
-  		.data(ANSURmenCSVoutput)
+  		.data(function() { 
+  			var obj = {}; 
+  			let arr = [];
+  			for(let i = 0; i < rawData[selectedMeasures[0]].length; i++) { 
+  				arr[i] = {}; 
+  				for(let j = 0; j < selectedMeasures.length; j++) {
+  					arr[i][selectedMeasures[j]] = rawData[selectedMeasures[j]][i];
+  				}
+  			}
+  			console.log(arr);
+  			return arr;
+  		})
   		.enter().append("path").attr("d",path);
 
 	// Add a group element for each dimension.
