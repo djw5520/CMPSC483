@@ -3,7 +3,7 @@
   <head>
   <style>
   svg {
-  font: 10px sans-serif;
+  font: 12px sans-serif;
 }
 
 .background path {
@@ -14,7 +14,7 @@
 
 .foreground path {
   fill: none;
-  stroke: steelblue;
+  stroke: #f59f66;
 }
 
 .brush .extent {
@@ -31,7 +31,8 @@
 }
 
 .axis text {
-  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+  /*text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;*/
+  font-weight: bold;
   cursor: move;
 }
 </style>
@@ -179,7 +180,7 @@ rawData = [];
 gender = 'men'; // men (1) by default; women = 2; combined = 3
 population = 'ANSUR'; // ansur by default; other choices given in table database_definitions
 selectedDims = new Array();
-selectedMeasures = new Array('STATURE','BMI', 'BIACROMIAL_BRTH', 'MASS', 'ACROMION_HT');
+selectedMeasures = new Array('STATURE','BMI');
 
 //anthroTable = population+gender; //default value
 densityMales_X = $.csv.toObjects(getDensityData('./data/ansurDensityMales_X.csv'));
@@ -418,6 +419,7 @@ function getDensity(measure,dimension) {
 }
 
 function drawPcoord(selectedMeasures) {
+
 	var margin = {top: 30, right: 10, bottom: 10, left: 10},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
@@ -431,42 +433,30 @@ function drawPcoord(selectedMeasures) {
     background,
     foreground;
 
+
+  	let arr = generateLines(); 
+
+    d3.select("#pcoord").select("svg").remove(); 
+    d3.select("#pcoord").append("svg");
 	var svg = d3.select("#pcoord").select("svg").attr("width", width + margin.left + margin.right)
 		.attr("height", height + margin.top + margin.bottom).append("g")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-	d3.csv("", function(error, ANSURmenCSVoutput) {
-		
-		
-  // Extract the list of dimensions and create a scale for each.
+  	// Extract the list of dimensions and create a scale for each.
   	x.domain(dimensions = selectedMeasures.filter(function(d) {
 
     	return d != "sum" && (y[d] = d3.scale.linear()
         .domain(d3.extent(rawData[d], function(p) {
-        		if(+p == null) return null; else  
-        		return +p; 
+        		if(p === "") return null; else return +p; 
         }))
         .range([height, 0]));
-  	}));
-	
+  	})); 
+
 	// Add grey background lines for context.
   	background = svg.append("g")
   		.attr("class", "background")
   		.selectAll("path")
-  		.data(
-  		function() { 
-  			var obj = {}; 
-  			let arr = [];
-  			for(let i = 0; i < rawData[selectedMeasures[0]].length; i++) { 
-  				arr[i] = {}; 
-  				for(let j = 0; j < selectedMeasures.length; j++) {
-  					arr[i][selectedMeasures[j]] = rawData[selectedMeasures[j]][i];
-  				}
-  			}
-  			console.log(arr);
-  			return arr;
-  		})
-  		
+  		.data(arr)
   		.enter().append("path")
   		.attr("d", path);
 	
@@ -474,18 +464,7 @@ function drawPcoord(selectedMeasures) {
   	foreground = svg.append("g")
   		.attr("class", "foreground")
   		.selectAll("path")
-  		.data(function() { 
-  			var obj = {}; 
-  			let arr = [];
-  			for(let i = 0; i < rawData[selectedMeasures[0]].length; i++) { 
-  				arr[i] = {}; 
-  				for(let j = 0; j < selectedMeasures.length; j++) {
-  					arr[i][selectedMeasures[j]] = rawData[selectedMeasures[j]][i];
-  				}
-  			}
-  			console.log(arr);
-  			return arr;
-  		})
+  		.data(arr)
   		.enter().append("path").attr("d",path);
 
 	// Add a group element for each dimension.
@@ -540,6 +519,7 @@ function drawPcoord(selectedMeasures) {
 			return d; 
 		});
 
+
   	// Add and store a brush for each axis.
   	g.append("g")
 		.attr("class", "brush")
@@ -549,7 +529,20 @@ function drawPcoord(selectedMeasures) {
     	.selectAll("rect")
       	.attr("x", -8)
       	.attr("width", 16);
-	});
+	
+
+	function generateLines() { 
+  			let obj = {};
+  			let arr = [];
+  			for(let i = 0; i < rawData[selectedMeasures[0]].length; i++) { 
+  				arr[i] = {}; 
+  				for(let j = 0; j < selectedMeasures.length; j++) {
+  					arr[i][selectedMeasures[j]] = rawData[selectedMeasures[j]][i];
+  				}
+  			}
+  			
+  			return arr; 
+  	}
 
 	function position(d) {
   		var v = dragging[d];
@@ -590,10 +583,10 @@ function drawPcoord(selectedMeasures) {
 	<?php include_once("analyticstracking.php") ?>
 
 	<div data-role="page" id="pageView" data-theme="d"> 
-		<div data-role="header" > 
-			<div class="ui-bar" style="padding:0;">
+		<div data-role="header" style="background-color: #555555;"> 
+			<div class="ui-bar" style="padding:0; background-color: #555555;">
 				<div id="headerLogoBlock"><a href="http://www.openlab.psu.edu/" target="_blank"><img src="./images/logo_tiny.png" border=0 style="height: 35px; margin-top:5px;"></a></div>
-				<div id="headerTitleBlock"><h1>Anthropometric Data Explorer</h1></div>
+				<div id="headerTitleBlock"><h1>Parallel Coordinates Plot</h1></div>
 				<div id="headerLinkBlock"><a href="http://www.openlab.psu.edu/" style="color:white" target="_blank">openlab.psu.edu</a></div>
 			</div>
 		</div>
@@ -607,7 +600,7 @@ function drawPcoord(selectedMeasures) {
 			  
 					<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" style="text-align:left;">
 						<legend style="font-size:14px; font-weight:bold; margin-right:20px; margin-top:10px; margin-bottom:5px;">Gender</legend>
-						<input type="radio" name="genderSwitch" id="genderSwitch_M" class="genderButton" checked="checked">
+						<input type="radio" name="genderSwitch" id="genderSwitch_M" class="genderButton" checked="checked" >
 						<label for="genderSwitch_M">Male</label>
 						<input type="radio" name="genderSwitch" id="genderSwitch_F" class="genderButton" >
 						<label for="genderSwitch_F">Female</label>
@@ -630,7 +623,7 @@ function drawPcoord(selectedMeasures) {
 					<div style="text-align:center; clear:both; margin: 0 auto; width:90%" id="output">
 						<img src="./images/ajax-loader.gif"><br><b>Output panel loading...</b>
 					</div>
-					<div class="outputImage" id="pcoord"><svg></svg></div>
+					<div class="outputImage" style="width:940px; margin:0 auto"id="pcoord"><svg></svg></div>
 				</div>
 			</div>
 			<h3 class="ui-bar ui-bar-a">Background</h3>
