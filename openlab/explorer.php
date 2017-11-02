@@ -439,7 +439,7 @@ function drawPcoord(selectedMeasures) {
     d3.select("#pcoord").select("svg").remove(); 
     d3.select("#pcoord").append("svg");
 	var svg = d3.select("#pcoord").select("svg").attr("width", width + margin.left + margin.right)
-		.attr("height", height + margin.top + margin.bottom).append("g")
+		.attr("height", height + margin.top + margin.bottom + 50).append("g")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   	// Extract the list of dimensions and create a scale for each.
@@ -515,10 +515,10 @@ function drawPcoord(selectedMeasures) {
 		.append("text")
 		.style("text-anchor", "middle")
 		.attr("y", -9)
+		.attr("font-size", "1.3em")
 		.text(function(d) { 
 			return d; 
 		});
-
 
   	// Add and store a brush for each axis.
   	g.append("g")
@@ -530,7 +530,22 @@ function drawPcoord(selectedMeasures) {
       	.attr("x", -8)
       	.attr("width", 16);
 	
+	// Displays domain of each axis
+	g.append("g")
+		.attr("class", "axis")
+		.each(function(p) { 
+			d3.select(this).call(axis.scale(y[p]));
+		})
+		.append("text")
+		.style("text-anchor", "middle")
+		.attr("y", 500)
+		.attr("id", "g1")
+		.attr("font-size", "1.3em")
+		.text(function(p) { 
+			return "(" + y[p].domain()[0] + "  ,  " + y[p].domain()[1] + ")";
+		});
 
+    // Manipulate rawData so it can be used to populate the plot
 	function generateLines() { 
   			let obj = {};
   			let arr = [];
@@ -543,7 +558,6 @@ function drawPcoord(selectedMeasures) {
   			
   			return arr; 
   	}
-
 	function position(d) {
   		var v = dragging[d];
   		return v == null ? x(d) : v;
@@ -553,7 +567,7 @@ function drawPcoord(selectedMeasures) {
   		return g.transition().duration(500);
 	}
 
-// Returns the path for a given data point.
+	// Returns the path for a given data point.
 	function path(d) {
   		return line(dimensions.map(function(p) { return [position(p), y[p](d[p])]; }));
 	}
@@ -563,17 +577,40 @@ function drawPcoord(selectedMeasures) {
 	}
 
 	// Handles a brush event, toggling the display of foreground lines.
+	// Displays the limits of the scrubber for each axis, full domain if no brush is present
 	function brush() {
-
   		var actives = dimensions.filter(function(p) { return !y[p].brush.empty(); }),
-      		extents = actives.map(function(p) { return y[p].brush.extent(); });
+      		extents = actives.map(function(p) {  return y[p].brush.extent(); });
+      	
+      	g.select("#g1").remove();
+
+      	g.append("g")
+		.attr("class", "axis")
+		.each(function(p) { 
+			d3.select(this).call(axis.scale(y[p]));
+		})
+		.append("text")
+		.style("text-anchor", "middle")
+		.attr("y", 500)
+		.attr("id", "g1")
+		.attr("font-size", "1.3em")
+		.text(function(p) { 
+			if(y[p].brush.empty()) return "(" + y[p].domain()[0] + "  ,  " + y[p].domain()[1] + ")"; 
+			else return "(" + y[p].brush.extent()[0].toFixed(1) + "  ,  " + y[p].brush.extent()[1].toFixed(1) + ")";	
+		});
+      	
+		var count = 0;
+
   		foreground.style("display", function(d) {
     	return actives.every(function(p, i) {
-    		d3.select("#test").html(y[p].brush.extent());
-
+    		if(extents[i][0] <= d[p] && d[p] <= extents[i][1]) count++;
+    		console.log(count);
       		return extents[i][0] <= d[p] && d[p] <= extents[i][1];
-    }) ? null : "none";
-  });
+    	}) ? null : "none";
+  		});
+
+  		d3.select("#g2").remove();
+  		d3.select("#pcoord").append("div").attr("id", "g2").style("color", "red").style("text-align", "center").style("font-weight", "bold").style("border-style", "solid").text("Accommodation: " + ((count / 1774)*100).toFixed(2) + "%");
  }
 }
 </script>
