@@ -1,43 +1,46 @@
 <!DOCTYPE html>
 <html>
-  <head>
-  <style>
-  svg {
-  font: 12px sans-serif;
-}
+		<head>
+  				<style>
 
-.background path {
-  fill: none;
-  stroke: #ddd;
-  shape-rendering: crispEdges;
-}
+  					svg {
+  						font: 12px sans-serif;
+					}
 
-.foreground path {
-  fill: none;
-  stroke: #f59f66;
-}
+					.background path {
+	  					fill: none;
+	  					stroke: #ddd;
+	  					shape-rendering: crispEdges;
+					}
 
-.brush .extent {
-  fill-opacity: .3;
-  stroke: #fff;
-  shape-rendering: crispEdges;
-}
+					.foreground path {
+	  					fill: none;
+	  					stroke: #f59f66;
+					}
 
-.axis line,
-.axis path {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
+					.brush .extent {
+	  					fill-opacity: .3;
+	  					stroke: #fff;
+	  					shape-rendering: crispEdges;
+					}
 
-.axis text {
-  /*text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;*/
-  font-weight: bold;
-  cursor: move;
-}
-</style>
-  <title>Anthropometric Data Explorer Calculator: Open Design Lab</title>
-   <meta name="viewport" content="width=device-width, initial-scale=1">	  
+					.axis line,
+					.axis path {
+	  					fill: none;
+	  					stroke: #000;
+	  					shape-rendering: crispEdges;
+					}
+
+					.axis text {
+	  					/*text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;*/
+	  					font-weight: bold;
+	  					cursor: move;
+					}
+
+				</style>
+
+				<title>Anthropometric Data Explorer Calculator: Open Design Lab</title>
+   				<meta name="viewport" content="width=device-width, initial-scale=1">	  
 
 <link rel="apple-touch-icon" href="./apple-touch-icon.png"/>
 <meta charset="utf-8">
@@ -64,7 +67,7 @@
 <script src="./jquery.csv-0.71.min.js"></script>
 <script language="javascript" type="text/javascript" src="./flot/jquery.flot.js"></script>
 <script src="d3.v3.min.js"></script>
-
+<script type="text/javascript" src="pcoord.js"></script>
 <script type="text/javascript">
 
 <?php
@@ -102,20 +105,6 @@ function ajaxindicatorstop()
 }
 
 		
-// LOAD PDF DATA
-function getDensityData(theUrl){
-	var result = null;
-	$.ajax({
-		async: false,
-		type: 'get',
-		url: theUrl,
-		dataType: 'text',
-		success: function(data){
-			result=data;
-		}
-	});
-	return result;
-}
 
 
 function generateCsv(){
@@ -141,32 +130,7 @@ function generateCsv(){
 	$('#csvFilename').val(population+gender);
 	$('#csvOutput').val(csvOutput);
 	 $("#downloadSelectedMeasures").submit();
-
-/*
-	$.ajax({
-    type: "POST",
-    url: "generateCsv.php",
-    data: {
-    	'csvOutput':csvOutput
-    	},
-    dataType: "text",
-    success: function(retData) {
-    alert(retData);
-  		$("body").append("<iframe src='" + retData + "' style='display: none;' ></iframe>");
-    },
-    error: function(data){
-        alert("Did not work.");
-    }
-	});
-*/
-
-/*
-$.post("generateCsv.php",{'csvOutput':csvOutput},function(data){
-alert(data);
-});
-*/
  
-
 }
 
 $(document).on('pageshow','#pageView',function(event){
@@ -182,11 +146,6 @@ population = 'ANSUR'; // ansur by default; other choices given in table database
 selectedDims = new Array();
 selectedMeasures = new Array('STATURE','BMI');
 
-//anthroTable = population+gender; //default value
-densityMales_X = $.csv.toObjects(getDensityData('./data/ansurDensityMales_X.csv'));
-densityMales_Y = $.csv.toObjects(getDensityData('./data/ansurDensityMales_Y.csv'));
-density_X = densityMales_X;
-density_Y = densityMales_Y;
 retrievedFemaleData = false;
 retrievedCombinedData = false;
 
@@ -207,6 +166,7 @@ buildAnthroPanel(dbAvailableMeasures[population]);
 buildOutput(selectedMeasures);
 
 dbDescriptionOutput = '';
+
 for (i=0; i<dbNameCoded.length; i++){
 	dbDescriptionOutput+='<h3>'+dbNameFull[dbNameCoded[i]]+'</h3>'+dbDescription[dbNameCoded[i]];
 	}
@@ -216,7 +176,7 @@ $('#dbDescription').html(dbDescriptionOutput);
 
 
 $(document).on('change','#dbSelect',function(e){
-ajaxindicatorstart();
+	ajaxindicatorstart();
 
 	population = $('#dbSelect option:selected').val();
 
@@ -230,13 +190,6 @@ ajaxindicatorstart();
 
 $(window).resize(function(){  });
 
-
-$(document).on('change','#anthroPickerForm',function(event) {
-
-//	refreshMvData();
-
-});
-
 $(document).on('change','input[name="genderSwitch"]',function(event) {
 ajaxindicatorstart();
 	selectedMeasures = new Array('STATURE','BMI');
@@ -246,53 +199,16 @@ ajaxindicatorstart();
 
 	if ($('#genderSwitch_M').prop("checked")){
 		gender = 'men';
-		/*density_X = densityMales_X;
-		density_Y = densityMales_Y;*/
-			
 	} else if ($('#genderSwitch_F').prop("checked")){
 		gender = 'women';
-		/*if (retrievedFemaleData==false){//sets up a flag so that data is only downloaded once
-			densityFemales_X = $.csv.toObjects(getDensityData('./data/ansurDensityFemales_X.csv'));
-			densityFemales_Y = $.csv.toObjects(getDensityData('./data/ansurDensityFemales_Y.csv'));
-			retrievedFemaleData=true;	
-		
-		}*/
-		//density_X = densityFemales_X;
-		//density_Y = densityFemales_Y;
-			
 	} else if ($('#genderSwitch_C').prop("checked")){
 		gender = 'both';
-		//rawData = $.extend({},rawData_M,rawData_F);
-		/*if (retrievedCombinedData==false){//sets up a flag so that data is only downloaded once
-			densityCombined_X = $.csv.toObjects(getDensityData('./data/ansurDensityCombined_X.csv'));
-			densityCombined_Y = $.csv.toObjects(getDensityData('./data/ansurDensityCombined_Y.csv'));			
-			retrievedCombinedData=true;
-		}*/
-		//density_X = densityCombined_X;
-		//density_Y = densityCombined_Y;
 	}	
+
 	//setTimeout gives the loading animation time to load before synchronous ajax locks the browser	
 	setTimeout(function(){buildOutput(selectedMeasures)},200);
-		
 });
 
-function getDensity(dimension) {
-	var result = [];
-	$.ajax({
-		type: "POST",
-		async: false,
-		dataType: 'text',
-		data: { measure: measure, gender: gender, table: 'density_'+population+'_'+dimension },
-		url: "./data/getData.php",
-		success: function(data) {
-			result = data;
-		},
-		error: function(){
-			alert("Error fetching density data.");
-		}
-	});
-	return result;
-}
 
 function dimSwitch(dimName){
 	if ($.inArray(dimName,selectedMeasures)==-1){
@@ -303,79 +219,22 @@ function dimSwitch(dimName){
 	buildOutput(selectedMeasures);
 }
 
-$(document).on("change",'.percentileSlider',function(e){
-	var theId=e.target.id;
-	var theMeasure=theId.split('-');
-	var thePercentile=$('#'+theId).val();
-	if (theMeasure[1]=='BMI'){
-		units = '';
-	}else{
-		units = ' mm';
-	}
-	$("#slider_output_"+theMeasure[1]).text(thePercentile+getSuffix(thePercentile)+' percentile: '+ss.quantile(rawData[theMeasure[1]],thePercentile/100)+units);
-});
 
-function getSuffix(percentile_value){
-	if ((percentile_value%10 ==1)&&(percentile_value!=11 )){
-		suffix = 'st';
-	} else if ((percentile_value%10 ==2)&&(percentile_value!=12 )){
-		suffix = 'nd';
-	} else if ((percentile_value%10 ==3)&&(percentile_value!=13)){
-		suffix = 'rd';
-	} else {
-		suffix = 'th';
-	}
-	return suffix;
-}
-
-		
 function buildOutput(selectedMeasures){
 
 	output_html = '';
-	
-	/*if (selectedMeasures[i]=='BMI'){
-		units = '';
-	}else{
-		units = ' mm';
-	}*/
 	
 	// fetch rawData
 	for(i = 0; i < selectedMeasures.length; i++) {
 		if (typeof rawData[selectedMeasures[i]] === 'undefined') {
 			var tmp = getDimension(selectedMeasures[i]);
 			rawData[selectedMeasures[i]] = tmp.split(",");
-			
-	
-	// fetch density distribution X
-			var tmp = getDensity(selectedMeasures[i],'x');
-			density_X[selectedMeasures[i]] = tmp.split(",");
-			density_X[selectedMeasures[i]] = $.grep(density_X[selectedMeasures[i]],function(n){ return(n) });
-	
-	// fetch density distribution Y
-			var tmp = getDensity(selectedMeasures[i],'y');
-			density_Y[selectedMeasures[i]] = tmp.split(",");
-			density_Y[selectedMeasures[i]] = $.grep(density_Y[selectedMeasures[i]],function(n){ return(n) });
 		}
 	}
 
-	output_html += ''
-	/*output_html += '<div id="'+selectedMeasures[i]+'" class="outputBlock">';
-	output_html += '<h3 style="text-align:left">'+fullName[selectedMeasures[i]]+'</h3>';
-	output_html += '<div class="outputImage"><img src="./images/anthro/'+image[selectedMeasures[i]]+'"></div>';
-	output_html += '<div id="plotPDF_'+selectedMeasures[i]+'" class="pdfPlaceholder"></div><br>';	
-	output_html += '<div class="pdfSliderContainer">';
-	output_html += '<label for="slider-'+selectedMeasures[i]+'" class="ui-hidden-accessible">Percentile</label>';
-    output_html += '<input type="range" name="slider-'+selectedMeasures[i]+'" id="slider-'+selectedMeasures[i]+'" class="percentileSlider" value="50" min="1" max="99" />';
-    output_html += '<p id="slider_output_'+selectedMeasures[i]+'" style="font-weight:bold;">50th percentile: '+ss.quantile(rawData[selectedMeasures[i]],0.5)+units+'</p>';
-	output_html += '</div></div>';*/
-	
-		
 	$('#output').html(output_html).trigger('create');
 		
-
 	drawPcoord(selectedMeasures);
-
-	
 }
 
 function getDimension(measure) {
@@ -396,226 +255,10 @@ function getDimension(measure) {
 	return result;
 }
 
-
-
-
-	
-function getDensity(measure,dimension) {
-	var result = [];
-	$.ajax({
-		type: "POST",
-		async: false,
-		dataType: "text",
-		data: { measure: measure, gender: gender, table: 'density_'+population+'_'+dimension },
-		url: "./data/getData.php",
-		success: function(data) {
-			result = data;
-		},
-		error: function(){
-			alert("Error fetching Density data.");
-		}
-	});
-	return result;
-}
-
-function drawPcoord(selectedMeasures) {
-
-	var margin = {top: 30, right: 10, bottom: 10, left: 10},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
-
-	var x = d3.scale.ordinal().rangePoints([0, width], 1),
-    y = {},
-    dragging = {};
-
-	var line = d3.svg.line(),
-    axis = d3.svg.axis().orient("left"),
-    background,
-    foreground;
-
-
-  	let arr = generateLines(); 
-
-    d3.select("#pcoord").select("svg").remove(); 
-    d3.select("#pcoord").append("svg");
-	var svg = d3.select("#pcoord").select("svg").attr("width", width + margin.left + margin.right)
-		.attr("height", height + margin.top + margin.bottom + 50).append("g")
-		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-  	// Extract the list of dimensions and create a scale for each.
-  	x.domain(dimensions = selectedMeasures.filter(function(d) {
-
-    	return d != "sum" && (y[d] = d3.scale.linear()
-        .domain(d3.extent(rawData[d], function(p) {
-        		if(p === "") return null; else return +p; 
-        }))
-        .range([height, 0]));
-  	})); 
-
-	// Add grey background lines for context.
-  	background = svg.append("g")
-  		.attr("class", "background")
-  		.selectAll("path")
-  		.data(arr)
-  		.enter().append("path")
-  		.attr("d", path);
-	
-	// Add blue foreground lines for focus.
-  	foreground = svg.append("g")
-  		.attr("class", "foreground")
-  		.selectAll("path")
-  		.data(arr)
-  		.enter().append("path").attr("d",path);
-
-	// Add a group element for each dimension.
-  	var g = svg.selectAll(".dimension")
-  		.data(dimensions)
-  		.enter().append("g")
-  		.attr("class", "dimension")
-  		.attr("transform", function(d) { 
-  			return "translate(" + x(d) + ")"; 
-  		})
-  		.call(d3.behavior.drag()
-        	.origin(function(d) { 
-        		return {x: x(d)}; 
-        	})
-        	.on("dragstart", function(d) {
-				dragging[d] = x(d);
-				background.attr("visibility", "hidden");
-        	})
-        	.on("drag", function(d) {
-				dragging[d] = Math.min(width, Math.max(0, d3.event.x));
-				foreground.attr("d", path);
-				dimensions.sort(function(a, b) { 
-					return position(a) - position(b); 
-				});
-				x.domain(dimensions);
-				g.attr("transform", function(d) { 
-					return "translate(" + position(d) + ")"; 
-				})
-        	})
-	        .on("dragend", function(d) {
-				delete dragging[d];
-				transition(d3.select(this)).attr("transform", "translate(" + x(d) + ")");
-				transition(foreground).attr("d", path);
-				background
-	            	.attr("d", path)
-	            	.transition()
-	            	.delay(500)
-	            	.duration(0)
-            		.attr("visibility", null);
-	        }));
-
-	// Add an axis and title.
-	g.append("g")
-		.attr("class", "axis")
-		.each(function(d) { 
-			d3.select(this).call(axis.scale(y[d])); 
-		})
-		.append("text")
-		.style("text-anchor", "middle")
-		.attr("y", -9)
-		.attr("font-size", "1.3em")
-		.text(function(d) { 
-			return d; 
-		});
-
-  	// Add and store a brush for each axis.
-  	g.append("g")
-		.attr("class", "brush")
-		.each(function(d) {
-			d3.select(this).call(y[d].brush = d3.svg.brush().y(y[d]).on("brushstart", brushstart).on("brush", brush));
-		})
-    	.selectAll("rect")
-      	.attr("x", -8)
-      	.attr("width", 16);
-	
-	// Displays domain of each axis
-	g.append("g")
-		.attr("class", "axis")
-		.each(function(p) { 
-			d3.select(this).call(axis.scale(y[p]));
-		})
-		.append("text")
-		.style("text-anchor", "middle")
-		.attr("y", 500)
-		.attr("id", "g1")
-		.attr("font-size", "1.3em")
-		.text(function(p) { 
-			return "(" + y[p].domain()[0] + "  ,  " + y[p].domain()[1] + ")";
-		});
-
-    // Manipulate rawData so it can be used to populate the plot
-	function generateLines() { 
-  			let obj = {};
-  			let arr = [];
-  			for(let i = 0; i < rawData[selectedMeasures[0]].length; i++) { 
-  				arr[i] = {}; 
-  				for(let j = 0; j < selectedMeasures.length; j++) {
-  					arr[i][selectedMeasures[j]] = rawData[selectedMeasures[j]][i];
-  				}
-  			}
-  			
-  			return arr; 
-  	}
-	function position(d) {
-  		var v = dragging[d];
-  		return v == null ? x(d) : v;
-	}
-
-	function transition(g) {
-  		return g.transition().duration(500);
-	}
-
-	// Returns the path for a given data point.
-	function path(d) {
-  		return line(dimensions.map(function(p) { return [position(p), y[p](d[p])]; }));
-	}
-
-	function brushstart() {
-  		d3.event.sourceEvent.stopPropagation();
-	}
-
-	// Handles a brush event, toggling the display of foreground lines.
-	// Displays the limits of the scrubber for each axis, full domain if no brush is present
-	function brush() {
-  		var actives = dimensions.filter(function(p) { return !y[p].brush.empty(); }),
-      		extents = actives.map(function(p) {  return y[p].brush.extent(); });
-      	
-      	g.select("#g1").remove();
-
-      	g.append("g")
-		.attr("class", "axis")
-		.each(function(p) { 
-			d3.select(this).call(axis.scale(y[p]));
-		})
-		.append("text")
-		.style("text-anchor", "middle")
-		.attr("y", 500)
-		.attr("id", "g1")
-		.attr("font-size", "1.3em")
-		.text(function(p) { 
-			if(y[p].brush.empty()) return "(" + y[p].domain()[0] + "  ,  " + y[p].domain()[1] + ")"; 
-			else return "(" + y[p].brush.extent()[0].toFixed(1) + "  ,  " + y[p].brush.extent()[1].toFixed(1) + ")";	
-		});
-      	
-		var count = 0;
-
-  		foreground.style("display", function(d) {
-    	return actives.every(function(p, i) {
-    		if(extents[i][0] <= d[p] && d[p] <= extents[i][1]) count++;
-    		console.log(count);
-      		return extents[i][0] <= d[p] && d[p] <= extents[i][1];
-    	}) ? null : "none";
-  		});
-
-  		d3.select("#g2").remove();
-  		d3.select("#pcoord").append("div").attr("id", "g2").style("color", "red").style("text-align", "center").style("font-weight", "bold").style("border-style", "solid").text("Accommodation: " + ((count / 1774)*100).toFixed(2) + "%");
- }
-}
 </script>
   
 </head>
+
 	<body onLoad="" style="margin:0; padding: 0; width: 100%;">
 	<?php include_once("analyticstracking.php") ?>
 
