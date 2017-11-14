@@ -140,6 +140,7 @@ function drawPcoord(selectedMeasures) {
 		.attr("font-size", "1.0em")
 		.attr("font-weight", "bold")
 		.text(function(p) { 
+			accom_percent[p] = 100;
 			return "Accommodation: 100%";
 		});
 
@@ -180,8 +181,6 @@ function drawPcoord(selectedMeasures) {
 	function brush() {
   		var actives = dimensions.filter(function(p) { return !y[p].brush.empty(); }),
       		extents = actives.map(function(p) {  return y[p].brush.extent(); });
-
-      	let min_accom = Math.min.apply(null, accom_percent);
       	
       	g.select("#range").remove();
       	g.select("#accom").remove();
@@ -231,14 +230,17 @@ function drawPcoord(selectedMeasures) {
 		.attr("font-size", "1.0em")
 		.attr("font-weight", "bold")
 		.attr("fill", function(p) {
-			console.log(accom_percent, "Min_accom ", min_accom, "p ", p);
-			if (accom_percent[p] < min_accom) {
+			let min_accom = 100;
+			for(key in accom_percent) {
+				if (accom_percent[key] < min_accom){
+					min_accom = accom_percent[key];
+				}
+			};
+			if (accom_percent[p] === min_accom) {
 				min_accom = accom_percent[p];
-				//g.select("#accom").attr("fill", "red");
 				return "red";
 			}
 			else {
-				// g.select("#accom").attr("fill", "black");
 				return "black";
 			}
 		});
@@ -252,32 +254,16 @@ function drawPcoord(selectedMeasures) {
 		}
 
   		foreground.style("display", function(d) {
-  			//console.log("Actives Length: " + actives.length + "\nCounts length: " + counts.length);
     			return actives.every(function(p, i) {
-    				// console.log("Extents: " + extents );
-    				// console.log("Actives: " + actives );
-    				//console.log("i: " + i);
     				if(extents[i][0] <= d[p] && d[p] <= extents[i][1]) {
     					counts[i] += 1;
-    					// console.log(counts[i]);
     				}
       				return extents[i][0] <= d[p] && d[p] <= extents[i][1];
     			}) ? null : "none";
   			
 
   		});
-  		// background.style("display", function(d) {
-  		// 	actives.every(function(p, i) {
-    // 				// console.log("Extents: " + extents );
-    // 				// console.log("Actives: " + actives );
-    // 				//console.log("i: " + i);
-    // 				if(extents[i][0] <= d[p] && d[p] <= extents[i][1]) {
-    // 					counts[i] += 1;
-				// 		// console.log(counts[i]);
-    // 				}
-    // 			});
-  		// 	});
-
+  		
   		// counts.forEach(function(d) {
   		// 	console.log(d + "\t");
   		// });
