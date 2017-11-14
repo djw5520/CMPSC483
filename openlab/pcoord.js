@@ -13,6 +13,7 @@ function drawPcoord(selectedMeasures) {
     background,
     foreground;
 
+	let accom_percent = [];
 
   	let arr = generateLines(); 
 
@@ -119,10 +120,27 @@ function drawPcoord(selectedMeasures) {
 		.append("text")
 		.style("text-anchor", "middle")
 		.attr("y", 500)
-		.attr("id", "g1")
-		.attr("font-size", "1.3em")
+		.attr("id", "range")
+		.attr("font-size", "1.0em")
+		.attr("font-weight", "bold")
 		.text(function(p) { 
-			return "(" + y[p].domain()[0] + "  ,  " + y[p].domain()[1] + ")";
+			return "Range: (" + y[p].domain()[0] + "  ,  " + y[p].domain()[1] + ")";
+		});
+
+	// Display initial accommodation percent
+	g.append("g")
+		.attr("class", "axis")
+		.each(function(p) { 
+			d3.select(this).call(axis.scale(y[p]));
+		})
+		.append("text")
+		.style("text-anchor", "middle")
+		.attr("y", 520)
+		.attr("id", "accom")
+		.attr("font-size", "1.0em")
+		.attr("font-weight", "bold")
+		.text(function(p) { 
+			return "Accommodation: 100%";
 		});
 
     // Function used to manipulate rawData so it can be used to populate the plot
@@ -162,8 +180,11 @@ function drawPcoord(selectedMeasures) {
 	function brush() {
   		var actives = dimensions.filter(function(p) { return !y[p].brush.empty(); }),
       		extents = actives.map(function(p) {  return y[p].brush.extent(); });
+
+      	let min_accom = Math.min.apply(null, accom_percent);
       	
-      	g.select("#g1").remove();
+      	g.select("#range").remove();
+      	g.select("#accom").remove();
 
       	g.append("g")
 		.attr("class", "axis")
@@ -173,15 +194,55 @@ function drawPcoord(selectedMeasures) {
 		.append("text")
 		.style("text-anchor", "middle")
 		.attr("y", 500)
-		.attr("id", "g1")
-		.attr("font-size", "1.3em")
+		.attr("id", "range")
+		.attr("font-size", "1.0em")
+		.attr("font-weight", "bold")
 		.text(function(p) { 
-			if(y[p].brush.empty()) return "(" + y[p].domain()[0] + "  ,  " + y[p].domain()[1] + ")"; 
-			else return "(" + y[p].brush.extent()[0].toFixed(1) + "  ,  " + y[p].brush.extent()[1].toFixed(1) + ")";	
+			if(y[p].brush.empty()) {
+				return "Range: (" + y[p].domain()[0] + "  ,  " + y[p].domain()[1] + ")";
+			} 
+			else {
+				return "Range: (" + y[p].brush.extent()[0].toFixed(1) + "  ,  " + y[p].brush.extent()[1].toFixed(1) + ")";
+			}	
 		});
 
+		g.append("text")
+		.text(function(p) { 
+			if(y[p].brush.empty()) {
+				accom_percent[p] = 100;
+				return "Accommodation: 100%";
+			}
+			else {
+				let lowbound = y[p].brush.extent()[0].toFixed(1);
+				let highbound = y[p].brush.extent()[1].toFixed(1);
+				let count = 0;
+				rawData[p].forEach(function(el) {
+					if(el >= lowbound && el <= highbound){
+						count++;
+					}
+				});
+				accom_percent[p] = ((count/rawData[p].length)*100);
+				return "Accommodation: " + accom_percent[p].toFixed(3) + "%";
+			}
+		})
+		.style("text-anchor", "middle")
+		.attr("y", 520)
+		.attr("id", "accom")
+		.attr("font-size", "1.0em")
+		.attr("font-weight", "bold")
+		.attr("fill", function(p) {
+			console.log(accom_percent, "Min_accom ", min_accom, "p ", p);
+			if (accom_percent[p] < min_accom) {
+				min_accom = accom_percent[p];
+				//g.select("#accom").attr("fill", "red");
+				return "red";
+			}
+			else {
+				// g.select("#accom").attr("fill", "black");
+				return "black";
+			}
+		});
 
-		
 
 		var count = 0;
 		var start = 0;
@@ -191,7 +252,7 @@ function drawPcoord(selectedMeasures) {
 		}
 
   		foreground.style("display", function(d) {
-  			console.log("Actives Length: " + actives.length + "\nCounts length: " + counts.length);
+  			//console.log("Actives Length: " + actives.length + "\nCounts length: " + counts.length);
     			return actives.every(function(p, i) {
     				// console.log("Extents: " + extents );
     				// console.log("Actives: " + actives );
@@ -205,21 +266,21 @@ function drawPcoord(selectedMeasures) {
   			
 
   		});
-  		background.style("display", function(d) {
-  			actives.every(function(p, i) {
-    				// console.log("Extents: " + extents );
-    				// console.log("Actives: " + actives );
-    				//console.log("i: " + i);
-    				if(extents[i][0] <= d[p] && d[p] <= extents[i][1]) {
-    					counts[i] += 1;
-    					// console.log(counts[i]);
-    				}
-    			});
-  			});
+  		// background.style("display", function(d) {
+  		// 	actives.every(function(p, i) {
+    // 				// console.log("Extents: " + extents );
+    // 				// console.log("Actives: " + actives );
+    // 				//console.log("i: " + i);
+    // 				if(extents[i][0] <= d[p] && d[p] <= extents[i][1]) {
+    // 					counts[i] += 1;
+				// 		// console.log(counts[i]);
+    // 				}
+    // 			});
+  		// 	});
 
-  		counts.forEach(function(d) {
-  			console.log(d + "\t");
-  		});
+  		// counts.forEach(function(d) {
+  		// 	console.log(d + "\t");
+  		// });
   		
 
   		// Add slider accommodation in same grouping as slider area? ^^^
