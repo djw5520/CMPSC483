@@ -1,14 +1,14 @@
 function drawPcoord(selectedMeasures) {
 
-	var margin = {top: 30, right: 10, bottom: 10, left: 10},
+	let margin = {top: 30, right: 10, bottom: 10, left: 10},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
-	var x = d3.scale.ordinal().rangePoints([0, width], 1),
+	let x = d3.scale.ordinal().rangePoints([0, width], 1),
     y = {},
     dragging = {};
 
-	var line = d3.svg.line(),
+	let line = d3.svg.line(),
     axis = d3.svg.axis().orient("left"),
     background,
     foreground;
@@ -19,7 +19,14 @@ function drawPcoord(selectedMeasures) {
 
     d3.select("#pcoord").select("svg").remove(); 
     d3.select("#pcoord").append("svg");
-	var svg = d3.select("#pcoord").select("svg").attr("width", width + margin.left + margin.right)
+    d3.select('#total_accom').remove();
+
+    d3.select("#pcoord").append("div").attr("id", "total_accom").style("color", "red")
+  				.style("text-align", "center").style("font-weight", "bold")
+  				.text("Total Accommodation: 100%");
+	
+
+	let svg = d3.select("#pcoord").select("svg").attr("width", width + margin.left + margin.right)
 		.attr("height", height + margin.top + margin.bottom + 100).append("g")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -49,7 +56,7 @@ function drawPcoord(selectedMeasures) {
   		.enter().append("path").attr("d",path);
 
 	// Add a group element for each dimension.
-  	var g = svg.selectAll(".dimension")
+  	let g = svg.selectAll(".dimension")
   		.data(dimensions)
   		.enter().append("g")
   		.attr("class", "dimension")
@@ -158,7 +165,7 @@ function drawPcoord(selectedMeasures) {
   			return arr; 
   	}
 	function position(d) {
-  		var v = dragging[d];
+  		let v = dragging[d];
   		return v == null ? x(d) : v;
 	}
 
@@ -179,8 +186,12 @@ function drawPcoord(selectedMeasures) {
 	// Handles a brush event, toggling the display of foreground lines.
 	// Displays the limits of the scrubber for each axis, full domain if no brush is present
 	function brush() {
-  		var actives = dimensions.filter(function(p) { return !y[p].brush.empty(); }),
-      		extents = actives.map(function(p) {  return y[p].brush.extent(); });
+  		let actives = dimensions.filter(function(p) { 
+  			return !y[p].brush.empty(); 
+  		}),
+  		extents = actives.map(function(p) {  
+  			return y[p].brush.extent();
+  		});
       	
       	g.select("#range").remove();
       	g.select("#accom").remove();
@@ -212,15 +223,15 @@ function drawPcoord(selectedMeasures) {
 				return "Accommodation: 100%";
 			}
 			else {
-				let lowbound = y[p].brush.extent()[0].toFixed(1);
-				let highbound = y[p].brush.extent()[1].toFixed(1);
+				let lowbound = y[p].brush.extent()[0];
+				let highbound = y[p].brush.extent()[1];
 				let count = 0;
 				rawData[p].forEach(function(el) {
 					if(el >= lowbound && el <= highbound){
 						count++;
 					}
 				});
-				accom_percent[p] = ((count/rawData[p].length)*100);
+				accom_percent[p] = ((count/(rawData[p].length-1)*100));
 				return "Accommodation: " + accom_percent[p].toFixed(3) + "%";
 			}
 		})
@@ -246,51 +257,32 @@ function drawPcoord(selectedMeasures) {
 		});
 
 
-		var count = 0;
-		var start = 0;
-		let counts = []; 
-		for (let i = 0; i < actives.length; i++) {
-			counts[i] = 0;
-		}
+		let count = 0;
+		let counts = [];
+		actives.forEach(function(d){
+			counts[d] = 0;
+		});
 
   		foreground.style("display", function(d) {
-    			return actives.every(function(p, i) {
-    				if(extents[i][0] <= d[p] && d[p] <= extents[i][1]) {
-    					counts[i] += 1;
-    				}
-      				return extents[i][0] <= d[p] && d[p] <= extents[i][1];
-    			}) ? null : "none";
-  			
-
+			return actives.every(function(p, i) {
+				if (extents[i][0] <= d[p] && d[p] <= extents[i][1]) {
+					counts[p] +=1;
+				}
+  				return extents[i][0] <= d[p] && d[p] <= extents[i][1];
+			}) ? null : "none";
   		});
-  		
-  		// counts.forEach(function(d) {
-  		// 	console.log(d + "\t");
-  		// });
-  		
 
-  		// Add slider accommodation in same grouping as slider area? ^^^
-		/*g.select("#g3").remove();
+  		let min = rawData[selectedMeasures[0]].length-1;
+  		for (let key in counts) {
+  			if(counts[key] < min){
+  				min = counts[key];
+  			}
+  		}
 
-      	g.append("g")
-		.attr("class", "axis")
-		.each(function(p) { 
-			d3.select(this).call(axis.scale(y[p]));
-		})
-		.append("text")
-		.style("text-anchor", "middle")
-		.attr("y", 530)
-		.attr("id", "g3")
-		.attr("font-size", "1.2em")
-		.text(function(p) { 
-			if(y[p].brush.empty()) return "Slider Accomodation: 100%"; 
-			else return "Slider Accomodation: " + counts[0];	
-		});
-*/
-  		d3.select("#g2").remove();
+  		d3.select("#total_accom").remove();
   		//Doesn't work. 
-  		d3.select("#pcoord").append("div").attr("id", "g2").style("color", "red")
+  		d3.select("#pcoord").append("div").attr("id", "total_accom").style("color", "red")
   				.style("text-align", "center").style("font-weight", "bold")
-  				.text("Total Accommodation: " + ((count / 1774)*100).toFixed(2) + "%");
- } 
+  				.text("Total Accommodation: " + ((min/(rawData[selectedMeasures[0]].length-1))*100).toFixed(2) + "%");
+	} 
 }	
