@@ -21,13 +21,17 @@ function drawPcoord(selectedMeasures) {
     d3.select("#pcoord").append("svg");
     d3.select('#total_accom').remove();
 
-    d3.select("#pcoord").append("div").attr("id", "total_accom").style("color", "red")
-  				.style("text-align", "center").style("font-weight", "bold")
-  				.text("Total Accommodation: 100%");
+    d3.select("#pcoord").append("div")
+    	.attr("id", "total_accom")
+  		.style("font-size", "1.6em")
+    	.style("color", "green")
+    	.style("text-align", "center")
+    	.style("font-weight", "bold")
+    	.text("Total Accommodation: 100%");
 	
 
 	let svg = d3.select("#pcoord").select("svg").attr("width", width + margin.left + margin.right)
-		.attr("height", height + margin.top + margin.bottom + 100).append("g")
+		.attr("height", height + margin.top + 100).append("g")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   	// Extract the list of dimensions and create a scale for each.
@@ -232,7 +236,7 @@ function drawPcoord(selectedMeasures) {
 					}
 				});
 				accom_percent[p] = ((count/(rawData[p].length-1)*100));
-				return "Accommodation: " + accom_percent[p].toFixed(3) + "%";
+				return "Accommodation: " + accom_percent[p].toFixed(1) + "%";
 			}
 		})
 		.style("text-anchor", "middle")
@@ -281,8 +285,12 @@ function drawPcoord(selectedMeasures) {
 
   		d3.select("#total_accom").remove();
   		//Doesn't work. 
-  		d3.select("#pcoord").append("div").attr("id", "total_accom").style("color", "red")
-  				.style("text-align", "center").style("font-weight", "bold")
-  				.text("Total Accommodation: " + ((min/(rawData[selectedMeasures[0]].length-1))*100).toFixed(2) + "%");
+  		d3.select("#pcoord").append("div")
+  		.attr("id", "total_accom")
+  		.style("font-size", "1.6em")
+  		.style("color", "green")
+  		.style("text-align", "center")
+  		.style("font-weight", "bold")
+  		.text("Total Accommodation: " + ((min/(rawData[selectedMeasures[0]].length-1))*100).toFixed(1) + "%");
 	} 
 }	
