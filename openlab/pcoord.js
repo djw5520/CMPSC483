@@ -31,7 +31,7 @@ function drawPcoord(selectedMeasures) {
 	
 
 	let svg = d3.select("#pcoord").select("svg").attr("width", width + margin.left + margin.right)
-		.attr("height", height + margin.top + 80).append("g")
+		.attr("height", height + margin.top + 90).append("g")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   	// Extract the list of dimensions and create a scale for each.
@@ -131,11 +131,26 @@ function drawPcoord(selectedMeasures) {
 		.append("text")
 		.style("text-anchor", "middle")
 		.attr("y", 500)
-		.attr("id", "range")
+		.attr("id", "min")
 		.attr("font-size", "1.0em")
 		.attr("font-weight", "bold")
 		.text(function(p) { 
-			return "Range: (" + y[p].domain()[0] + "  ,  " + y[p].domain()[1] + ")";
+			return "MIN: " + y[p].domain()[0];
+		})
+
+	g.append("g")
+		.attr("class", "axis")
+		.each(function(p) { 
+			d3.select(this).call(axis.scale(y[p]));
+		})
+		.append("text")
+		.style("text-anchor", "middle")
+		.attr("y", 520)
+		.attr("id", "max")
+		.attr("font-size", "1.0em")
+		.attr("font-weight", "bold")
+		.text(function(p) { 
+			return "MAX: " + y[p].domain()[1];
 		});
 
 	// Display initial accommodation percent
@@ -146,13 +161,13 @@ function drawPcoord(selectedMeasures) {
 		})
 		.append("text")
 		.style("text-anchor", "middle")
-		.attr("y", 520)
+		.attr("y", 540)
 		.attr("id", "accom")
 		.attr("font-size", "1.0em")
 		.attr("font-weight", "bold")
 		.text(function(p) { 
 			accom_percent[p] = 100;
-			return "Accommodation: 100%";
+			return "ACC: 100%";
 		});
 
     // Function used to manipulate rawData so it can be used to populate the plot
@@ -197,7 +212,8 @@ function drawPcoord(selectedMeasures) {
   			return y[p].brush.extent();
   		});
       	
-      	g.select("#range").remove();
+      	g.select("#min").remove();
+      	g.select("#max").remove();
       	g.select("#accom").remove();
 
       	g.append("g")
@@ -208,15 +224,35 @@ function drawPcoord(selectedMeasures) {
 		.append("text")
 		.style("text-anchor", "middle")
 		.attr("y", 500)
-		.attr("id", "range")
+		.attr("id", "min")
 		.attr("font-size", "1.0em")
 		.attr("font-weight", "bold")
 		.text(function(p) { 
 			if(y[p].brush.empty()) {
-				return "Range: (" + y[p].domain()[0] + "  ,  " + y[p].domain()[1] + ")";
+				return "MIN: " + y[p].domain()[0];
 			} 
 			else {
-				return "Range: (" + y[p].brush.extent()[0].toFixed(1) + "  ,  " + y[p].brush.extent()[1].toFixed(1) + ")";
+				return "MIN: " + y[p].brush.extent()[0].toFixed(1);
+			}	
+		})
+
+		g.append("g")
+		.attr("class", "axis")
+		.each(function(p) { 
+			d3.select(this).call(axis.scale(y[p]));
+		})
+		.append("text")
+		.style("text-anchor", "middle")
+		.attr("y", 520)
+		.attr("id", "max")
+		.attr("font-size", "1.0em")
+		.attr("font-weight", "bold")
+		.text(function(p) { 
+			if(y[p].brush.empty()) {
+				return "MAX: " + y[p].domain()[1];
+			} 
+			else {
+				return "MAX: " + y[p].brush.extent()[1].toFixed(1);
 			}	
 		});
 
@@ -224,7 +260,7 @@ function drawPcoord(selectedMeasures) {
 		.text(function(p) { 
 			if(y[p].brush.empty()) {
 				accom_percent[p] = 100;
-				return "Accommodation: 100%";
+				return "ACC: 100%";
 			}
 			else {
 				let lowbound = y[p].brush.extent()[0];
@@ -236,11 +272,11 @@ function drawPcoord(selectedMeasures) {
 					}
 				});
 				accom_percent[p] = ((count/(rawData[p].length-1)*100));
-				return "Accommodation: " + accom_percent[p].toPrecision(3) + "%";
+				return "ACC: " + accom_percent[p].toPrecision(3) + "%";
 			}
 		})
 		.style("text-anchor", "middle")
-		.attr("y", 520)
+		.attr("y", 540)
 		.attr("id", "accom")
 		.attr("font-size", "1.0em")
 		.attr("font-weight", "bold")
