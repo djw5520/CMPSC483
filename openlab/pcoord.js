@@ -232,7 +232,12 @@ function drawPcoord(selectedMeasures) {
 				return "MIN: " + y[p].domain()[0];
 			} 
 			else {
-				return "MIN: " + y[p].brush.extent()[0].toFixed(1);
+				if(p === "MASS" || p === "BMI"){
+					return "MIN: " + y[p].brush.extent()[0].toFixed(1);
+				}
+				else {
+					return "MIN: " + y[p].brush.extent()[0].toFixed(0);
+				}
 			}	
 		})
 
@@ -252,7 +257,12 @@ function drawPcoord(selectedMeasures) {
 				return "MAX: " + y[p].domain()[1];
 			} 
 			else {
-				return "MAX: " + y[p].brush.extent()[1].toFixed(1);
+				if(p === "MASS" || p === "BMI") {
+					return "MAX: " + y[p].brush.extent()[1].toFixed(1);
+				}
+				else {
+					return "MAX: " + y[p].brush.extent()[1].toFixed(0);
+				}
 			}	
 		});
 
