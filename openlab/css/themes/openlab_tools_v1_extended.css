@@ -1357,6 +1357,168 @@ html head + body .ui-body-g.ui-focus {
 	box-shadow: 0 0 12px #3388cc /*{g-active-background-color}*/;
 }
 
+/* H (Parallel coordinates)
+-----------------------------------------------------------------------------------------------------------*/
+/* Bar: Toolbars, dividers, slider track */
+.ui-bar-h,
+.ui-page-theme-h .ui-bar-inherit,
+html .ui-bar-h .ui-bar-inherit,
+html .ui-body-h .ui-bar-inherit,
+html body .ui-group-theme-h .ui-bar-inherit {
+	background-color: #1c7a7c /*{h-bar-background-color}*/;
+	border-color: #813f14 /*{h-bar-border}*/;
+	color: #ffffff /*{h-bar-color}*/;
+	text-shadow: 0 /*{h-bar-shadow-x}*/ 0 /*{h-bar-shadow-y}*/ 0 /*{h-bar-shadow-radius}*/ #eeeeee /*{h-bar-shadow-color}*/;
+	font-weight: bold;
+}
+.ui-bar-h {
+	border-width: 1px;
+	border-style: solid;
+}
+/* Page and overlay */
+.ui-overlay-h,
+.ui-page-theme-h,
+.ui-page-theme-h .ui-panel-wrapper {
+	background-color: #f9f9f9 /*{h-page-background-color}*/;
+	border-color: #bbbbbb /*{h-page-border}*/;
+	color: #333333 /*{h-page-color}*/;
+	text-shadow: 0 /*{h-page-shadow-x}*/ 1px /*{h-page-shadow-y}*/ 0 /*{h-page-shadow-radius}*/ #f3f3f3 /*{h-page-shadow-color}*/;
+}
+/* Body: Read-only lists, text inputs, collapsible content */
+.ui-body-h,
+.ui-page-theme-h .ui-body-inherit,
+html .ui-bar-h .ui-body-inherit,
+html .ui-body-h .ui-body-inherit,
+html body .ui-group-theme-h .ui-body-inherit,
+html .ui-panel-page-container-h {
+	background-color: #ffffff /*{h-body-background-color}*/;
+	border-color: #dddddd /*{h-body-border}*/;
+	color: #333333 /*{h-body-color}*/;
+	text-shadow: 0 /*{h-body-shadow-x}*/ 1px /*{h-body-shadow-y}*/ 0 /*{h-body-shadow-radius}*/ #f3f3f3 /*{h-body-shadow-color}*/;
+}
+.ui-body-h {
+	border-width: 1px;
+	border-style: solid;
+}
+/* Links */
+.ui-page-theme-h a,
+html .ui-bar-h a,
+html .ui-body-h a,
+html body .ui-group-theme-h a {
+	color: #1c7a7c /*{h-link-color}*/;
+	font-weight: bold;
+}
+.ui-page-theme-h a:visited,
+html .ui-bar-h a:visited,
+html .ui-body-h a:visited,
+html body .ui-group-theme-h a:visited {
+    color: #3388cc /*{h-link-visited}*/;
+}
+.ui-page-theme-h a:hover,
+html .ui-bar-h a:hover,
+html .ui-body-h a:hover,
+html body .ui-group-theme-h a:hover {
+	color: #005599 /*{h-link-hover}*/;
+}
+.ui-page-theme-h a:active,
+html .ui-bar-h a:active,
+html .ui-body-h a:active,
+html body .ui-group-theme-h a:active {
+	color: #005599 /*{h-link-active}*/;
+}
+/* Button up */
+.ui-page-theme-h .ui-btn,
+html .ui-bar-h .ui-btn,
+html .ui-body-h .ui-btn,
+html body .ui-group-theme-h .ui-btn,
+html head + body .ui-btn.ui-btn-h,
+/* Button visited */
+.ui-page-theme-h .ui-btn:visited,
+html .ui-bar-h .ui-btn:visited,
+html .ui-body-h .ui-btn:visited,
+html body .ui-group-theme-h .ui-btn:visited,
+html head + body .ui-btn.ui-btn-h:visited {
+	background-color: #f6f6f6 /*{h-bup-background-color}*/;
+	border-color: #dddddd /*{h-bup-border}*/;
+	color: #333333 /*{h-bup-color}*/;
+	text-shadow: 0 /*{h-bup-shadow-x}*/ 0 /*{h-bup-shadow-y}*/ 0 /*{h-bup-shadow-radius}*/ #f3f3f3 /*{h-bup-shadow-color}*/;
+}
+/* Button hover */
+.ui-page-theme-h .ui-btn:hover,
+html .ui-bar-h .ui-btn:hover,
+html .ui-body-h .ui-btn:hover,
+html body .ui-group-theme-h .ui-btn:hover,
+html head + body .ui-btn.ui-btn-h:hover {
+	background-color: #ededed /*{h-bhover-background-color}*/;
+	border-color: #dddddd /*{h-bhover-border}*/;
+	color: #333333 /*{h-bhover-color}*/;
+	text-shadow: 0 /*{h-bhover-shadow-x}*/ 0 /*{h-bhover-shadow-y}*/ 0 /*{h-bhover-shadow-radius}*/ #f3f3f3 /*{h-bhover-shadow-color}*/;
+}
+/* Button down */
+.ui-page-theme-h .ui-btn:active,
+html .ui-bar-h .ui-btn:active,
+html .ui-body-h .ui-btn:active,
+html body .ui-group-theme-h .ui-btn:active,
+html head + body .ui-btn.ui-btn-h:active {
+	background-color: #e8e8e8 /*{h-bdown-background-color}*/;
+	border-color: #dddddd /*{h-bdown-border}*/;
+	color: #333333 /*{h-bdown-color}*/;
+	text-shadow: 0 /*{h-bdown-shadow-x}*/ 0 /*{h-bdown-shadow-y}*/ 0 /*{h-bdown-shadow-radius}*/ #f3f3f3 /*{h-bdown-shadow-color}*/;
+}
+/* Active button */
+.ui-page-theme-h .ui-btn.ui-btn-active,
+html .ui-bar-h .ui-btn.ui-btn-active,
+html .ui-body-h .ui-btn.ui-btn-active,
+html body .ui-group-theme-h .ui-btn.ui-btn-active,
+html head + body .ui-btn.ui-btn-h.ui-btn-active,
+/* Active checkbox icon */
+.ui-page-theme-h .ui-checkbox-on:after,
+html .ui-bar-h .ui-checkbox-on:after,
+html .ui-body-h .ui-checkbox-on:after,
+html body .ui-group-theme-h .ui-checkbox-on:after,
+.ui-btn.ui-checkbox-on.ui-btn-h:after,
+/* Active flipswitch background */
+.ui-page-theme-h .ui-flipswitch-active,
+html .ui-bar-h .ui-flipswitch-active,
+html .ui-body-h .ui-flipswitch-active,
+html body .ui-group-theme-h .ui-flipswitch-active,
+html body .ui-flipswitch.ui-bar-h.ui-flipswitch-active,
+/* Active slider track */
+.ui-page-theme-h .ui-slider-track .ui-btn-active,
+html .ui-bar-h .ui-slider-track .ui-btn-active,
+html .ui-body-h .ui-slider-track .ui-btn-active,
+html body .ui-group-theme-h .ui-slider-track .ui-btn-active,
+html body div.ui-slider-track.ui-body-h .ui-btn-active {
+	background-color: #1c7a7c /*{h-active-background-color}*/;
+	border-color: #914818 /*{h-active-border}*/;
+	color: #ffffff /*{h-active-color}*/;
+	text-shadow: 0 /*{h-active-shadow-x}*/ 0 /*{h-active-shadow-y}*/ 0 /*{h-active-shadow-radius}*/ #005599 /*{h-active-shadow-color}*/;
+}
+/* Active radio button icon */
+.ui-page-theme-h .ui-radio-on:after,
+html .ui-bar-h .ui-radio-on:after,
+html .ui-body-h .ui-radio-on:after,
+html body .ui-group-theme-h .ui-radio-on:after,
+.ui-btn.ui-radio-on.ui-btn-h:after {
+	border-color: #1c7a7c /*{h-active-background-color}*/;
+}
+/* Focus */
+.ui-page-theme-h .ui-btn:focus,
+html .ui-bar-h .ui-btn:focus,
+html .ui-body-h .ui-btn:focus,
+html body .ui-group-theme-h .ui-btn:focus,
+html head + body .ui-btn.ui-btn-h:focus,
+/* Focus buttons and text inputs with div wrap */
+.ui-page-theme-h .ui-focus,
+html .ui-bar-h .ui-focus,
+html .ui-body-h .ui-focus,
+html body .ui-group-theme-h .ui-focus,
+html head + body .ui-btn-h.ui-focus,
+html head + body .ui-body-h.ui-focus {
+	-webkit-box-shadow: 0 0 12px #1c7a7c /*{h-active-background-color}*/;
+	-moz-box-shadow: 0 0 12px #1c7a7c /*{h-active-background-color}*/;
+	box-shadow: 0 0 12px #1c7a7c /*{h-active-background-color}*/;
+}
 
 /* Structure */
 /* Disabled

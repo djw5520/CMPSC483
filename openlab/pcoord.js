@@ -24,7 +24,7 @@ function drawPcoord(selectedMeasures) {
     d3.select("#pcoord").append("div")
     	.attr("id", "total_accom")
   		.style("font-size", "1.6em")
-    	.style("color", "green")
+    	.style("color", "#1c7a7c")
     	.style("text-align", "center")
     	.style("font-weight", "bold")
     	.text("Total Accommodation: 100%");
@@ -132,7 +132,7 @@ function drawPcoord(selectedMeasures) {
 		.style("text-anchor", "middle")
 		.attr("y", 500)
 		.attr("id", "min")
-		.attr("font-size", "1.0em")
+		.attr("font-size", "1.1em")
 		.attr("font-weight", "bold")
 		.text(function(p) { 
 			return "MIN: " + y[p].domain()[0];
@@ -147,7 +147,7 @@ function drawPcoord(selectedMeasures) {
 		.style("text-anchor", "middle")
 		.attr("y", 520)
 		.attr("id", "max")
-		.attr("font-size", "1.0em")
+		.attr("font-size", "1.1em")
 		.attr("font-weight", "bold")
 		.text(function(p) { 
 			return "MAX: " + y[p].domain()[1];
@@ -163,7 +163,7 @@ function drawPcoord(selectedMeasures) {
 		.style("text-anchor", "middle")
 		.attr("y", 540)
 		.attr("id", "accom")
-		.attr("font-size", "1.0em")
+		.attr("font-size", "1.1em")
 		.attr("font-weight", "bold")
 		.text(function(p) { 
 			accom_percent[p] = 100;
@@ -212,61 +212,39 @@ function drawPcoord(selectedMeasures) {
   			return y[p].brush.extent();
   		});
       	
-      	g.select("#min").remove();
-      	g.select("#max").remove();
-      	g.select("#accom").remove();
-
-      	g.append("g")
-		.attr("class", "axis")
-		.each(function(p) { 
-			d3.select(this).call(axis.scale(y[p]));
-		})
-		.append("text")
-		.style("text-anchor", "middle")
-		.attr("y", 500)
-		.attr("id", "min")
-		.attr("font-size", "1.0em")
-		.attr("font-weight", "bold")
-		.text(function(p) { 
-			if(y[p].brush.empty()) {
-				return "MIN: " + y[p].domain()[0];
-			} 
-			else {
-				if(p === "MASS" || p === "BMI"){
-					return "MIN: " + y[p].brush.extent()[0].toFixed(1);
-				}
+		g.selectAll("#min").text(
+			function(p) { 
+				if(y[p].brush.empty()) {
+					return "MIN: " + y[p].domain()[0];
+				} 
 				else {
-					return "MIN: " + y[p].brush.extent()[0].toFixed(0);
+					if(p === "MASS" || p === "BMI"){
+						return "MIN: " + y[p].brush.extent()[0].toFixed(1);
+					}
+					else {
+						return "MIN: " + y[p].brush.extent()[0].toFixed(0);
+					}
 				}
-			}	
-		})
+			}
+		);
 
-		g.append("g")
-		.attr("class", "axis")
-		.each(function(p) { 
-			d3.select(this).call(axis.scale(y[p]));
-		})
-		.append("text")
-		.style("text-anchor", "middle")
-		.attr("y", 520)
-		.attr("id", "max")
-		.attr("font-size", "1.0em")
-		.attr("font-weight", "bold")
-		.text(function(p) { 
-			if(y[p].brush.empty()) {
-				return "MAX: " + y[p].domain()[1];
-			} 
-			else {
-				if(p === "MASS" || p === "BMI") {
-					return "MAX: " + y[p].brush.extent()[1].toFixed(1);
-				}
+		g.selectAll("#max").text(
+			function(p) { 
+				if(y[p].brush.empty()) {
+					return "MAX: " + y[p].domain()[1];
+				} 
 				else {
-					return "MAX: " + y[p].brush.extent()[1].toFixed(0);
-				}
-			}	
-		});
+					if(p === "MASS" || p === "BMI") {
+						return "MAX: " + y[p].brush.extent()[1].toFixed(1);
+					}
+					else {
+						return "MAX: " + y[p].brush.extent()[1].toFixed(0);
+					}
+				}	
+			}
+		);
 
-		g.append("text")
+		g.select("#accom")
 		.text(function(p) { 
 			if(y[p].brush.empty()) {
 				accom_percent[p] = 100;
@@ -285,11 +263,6 @@ function drawPcoord(selectedMeasures) {
 				return "ACC: " + accom_percent[p].toPrecision(3) + "%";
 			}
 		})
-		.style("text-anchor", "middle")
-		.attr("y", 540)
-		.attr("id", "accom")
-		.attr("font-size", "1.0em")
-		.attr("font-weight", "bold")
 		.attr("fill", function(p) {
 			let min_accom = 100;
 			for(key in accom_percent) {
@@ -329,14 +302,7 @@ function drawPcoord(selectedMeasures) {
   			}
   		}
 
-  		d3.select("#total_accom").remove();
-  		//Doesn't work. 
-  		d3.select("#pcoord").append("div")
-  		.attr("id", "total_accom")
-  		.style("font-size", "1.6em")
-  		.style("color", "green")
-  		.style("text-align", "center")
-  		.style("font-weight", "bold")
-  		.text("Total Accommodation: " + ((min/(rawData[selectedMeasures[0]].length-1))*100).toPrecision(3) + "%");
+  		d3.select("#total_accom").text("Total Accommodation: " + ((min/(rawData[selectedMeasures[0]].length-1))*100).toPrecision(3) + "%");
+  		
 	} 
 }	

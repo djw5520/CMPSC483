@@ -15,7 +15,7 @@
 
 					.foreground path {
 	  					fill: none;
-	  					stroke: #f59f66;
+	  					stroke: #29b8bc;
 					}
 
 					.brush .extent {
@@ -262,9 +262,9 @@ function getDimension(measure) {
 	<body onLoad="" style="margin:0; padding: 0; width: 100%;">
 	<?php include_once("analyticstracking.php") ?>
 
-	<div data-role="page" id="pageView" data-theme="d"> 
-		<div data-role="header" style="background-color: #555555;"> 
-			<div class="ui-bar" style="padding:0; background-color: #555555;">
+	<div data-role="page" id="pageView" data-theme="h"> 
+		<div data-role="header" "> <!-- this is where you change the color -->
+			<div class="ui-bar" style="padding:0;">
 				<div id="headerLogoBlock"><a href="http://www.openlab.psu.edu/" target="_blank"><img src="./images/logo_tiny.png" border=0 style="height: 35px; margin-top:5px;"></a></div>
 				<div id="headerTitleBlock"><h1>VFT: Parallel Coordinates</h1></div>
 				<div id="headerLinkBlock"><a href="http://www.openlab.psu.edu/" style="color:white" target="_blank">openlab.psu.edu</a></div>
