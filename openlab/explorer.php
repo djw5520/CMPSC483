@@ -148,7 +148,7 @@ $( "#genderSwitch_M" ).prop( "checked", true ).checkboxradio( "refresh" );
 $( "#genderSwitch_F" ).prop( "checked", false ).checkboxradio( "refresh" ); 
 $( "#genderSwitch_C" ).prop( "checked", false ).checkboxradio( "refresh" ); 
 
-
+plotArray = []; //holds plots from generatePDF so the marking can be updated when the slider is moved
 rawData = [];
 gender = 'men'; // men (1) by default; women = 2; combined = 3
 population = 'ANSUR'; // ansur by default; other choices given in table database_definitions
@@ -283,12 +283,20 @@ $(document).on("change",'.percentileSlider',function(e){
 	var theId=e.target.id;
 	var theMeasure=theId.split('-');
 	var thePercentile=$('#'+theId).val();
+	var percentileVal = ss.quantile(rawData[theMeasure[1]],thePercentile/100);
 	if (theMeasure[1]=='BMI'){
 		units = '';
 	}else{
 		units = ' mm';
 	}
-	$("#slider_output_"+theMeasure[1]).text(thePercentile+getSuffix(thePercentile)+' percentile: '+ss.quantile(rawData[theMeasure[1]],thePercentile/100)+units);
+	$("#slider_output_"+theMeasure[1]).text(thePercentile+getSuffix(thePercentile)+' percentile: '+percentileVal+units);
+
+	//Move the marking along the graph with respect to the percentile value
+	plotArray[theMeasure[1]].getOptions().grid.markings = [{
+			xaxis: {from: percentileVal, to: percentileVal}, color: "#ff8888"
+		}];
+	plotArray[theMeasure[1]].setupGrid();
+	plotArray[theMeasure[1]].draw();
 });
 
 function getSuffix(percentile_value){
@@ -401,17 +409,28 @@ function plotPDF(selectedMeasures){
 			show: false
 			},
 		grid:{
-			borderWidth: 0
+			borderWidth: 0,
+			markingsLineWidth: 3
 			}
 	}
 	for (i=0; i<selectedMeasures.length; i++){	
 		tmp = [];
+		var percentileVal = ss.quantile(rawData[selectedMeasures[i]],0.5);
+		console.log(percentileVal);
 		var x = density_X[selectedMeasures[i]];
 		var y = density_Y[selectedMeasures[i]];
 		for (j=0; j<x.length; j++){
 			tmp.push([x[j],y[j]]);
 		}
-		$.plot("#plotPDF_"+selectedMeasures[i],[tmp],options);
+		plotArray[selectedMeasures[i]] = $.plot("#plotPDF_"+selectedMeasures[i],[tmp],options);
+
+		//set the grid marking for the 50th percentile and redraw the graph
+		plotArray[selectedMeasures[i]].getOptions().grid.markings = [{
+			xaxis: {from: percentileVal, to: percentileVal}, color: "#ff8888"
+		}];
+		plotArray[selectedMeasures[i]].setupGrid();
+		plotArray[selectedMeasures[i]].draw();
+
 		//$.plot(asdf,[[densityFemales_X.STATURE],[densityFemales_Y.STATURE]]);
 		//$.plot(selectedMeasures[i],[plotPDF]);
 	}
